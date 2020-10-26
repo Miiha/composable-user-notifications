@@ -1,7 +1,7 @@
 import Foundation
-import UserNotifications
-import Combine
 import CoreLocation
+import ComposableArchitecture
+import UserNotifications
 
 @available(iOS 10.0, *)
 @available(macCatalyst 13.0, *)
@@ -9,29 +9,29 @@ import CoreLocation
 @available(tvOS 10.0, *)
 @available(watchOS 3.0, *)
 public struct UserNotificationClient {
-  public var add: (UNNotificationRequest) -> AnyPublisher<Void, Error> = { _ in
+  public var add: (UNNotificationRequest) -> Effect<Void, Error> = { _ in
     _unimplemented("add")
   }
 
-  public var getAuthStatus: () -> AnyPublisher<UNAuthorizationStatus, Never> = {
+  public var getAuthStatus: () -> Effect<UNAuthorizationStatus, Never> = {
     _unimplemented("getAuthStatus")
   }
 
   @available(tvOS, unavailable)
-  public var getDeliveredNotifications: () -> AnyPublisher<[Notification], Never> = {
+  public var getDeliveredNotifications: () -> Effect<[Notification], Never> = {
     _unimplemented("getDeliveredNotifications")
   }
 
   @available(tvOS, unavailable)
-  public var getNotificationCategories: () -> AnyPublisher<Set<UNNotificationCategory>, Never> = {
+  public var getNotificationCategories: () -> Effect<Set<UNNotificationCategory>, Never> = {
     _unimplemented("getNotificationCategories")
   }
 
-  public var getNotificationSettings: () -> AnyPublisher<NotificationSettings, Never> = {
+  public var getNotificationSettings: () -> Effect<NotificationSettings, Never> = {
     _unimplemented("getNotificationSettings")
   }
 
-  public var getPendingNotificationRequests: () -> AnyPublisher<[NotificationRequest], Never> = {
+  public var getPendingNotificationRequests: () -> Effect<[NotificationRequest], Never> = {
     _unimplemented("getPendingNotificationRequests")
   }
 
@@ -53,7 +53,7 @@ public struct UserNotificationClient {
     _unimplemented("removePendingNotificationRequests")
   }
 
-  public var requestAuthorization: (UNAuthorizationOptions) -> AnyPublisher<Bool, NSError> = { _ in
+  public var requestAuthorization: (UNAuthorizationOptions) -> Effect<Bool, NSError> = { _ in
     _unimplemented("requestAuthorization")
   }
 
@@ -66,11 +66,11 @@ public struct UserNotificationClient {
     _unimplemented("supportsContentExtensions")
   }
 
-  public var delegate: () -> AnyPublisher<DelegateEvent, Never> = {
+  public var delegate: () -> Effect<Action, Never> = {
     _unimplemented("delegate")
   }
 
-  public enum DelegateEvent {
+  public enum Action {
     case willPresentNotification(
           _ notification: Notification,
           completion: (UNNotificationPresentationOptions) -> Void)

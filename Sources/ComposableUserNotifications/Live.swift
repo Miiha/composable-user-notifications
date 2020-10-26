@@ -1,13 +1,14 @@
 import Foundation
 import Combine
+import ComposableArchitecture
 import UserNotifications
 
 extension UserNotificationClient {
   public static var live: UserNotificationClient {
     final class Delegate: NSObject, UNUserNotificationCenterDelegate {
-      let subject: PassthroughSubject<DelegateEvent, Never>
+      let subject: PassthroughSubject<Action, Never>
 
-      init(subject: PassthroughSubject<DelegateEvent, Never>) {
+      init(subject: PassthroughSubject<Action, Never>) {
         self.subject = subject
       }
 
@@ -47,7 +48,7 @@ extension UserNotificationClient {
     }
 
     let center = UNUserNotificationCenter.current()
-    let subject = PassthroughSubject<DelegateEvent, Never>()
+    let subject = PassthroughSubject<Action, Never>()
     var delegate: Delegate? = Delegate(subject: subject)
     center.delegate = delegate
 
@@ -61,7 +62,7 @@ extension UserNotificationClient {
             promise(.success(()))
           }
         }
-      }.eraseToAnyPublisher()
+      }.eraseToEffect()
     }
 
     client.getAuthStatus = {
@@ -69,7 +70,7 @@ extension UserNotificationClient {
         center.getNotificationSettings { settings in
           promise(.success(settings.authorizationStatus))
         }
-      }.eraseToAnyPublisher()
+      }.eraseToEffect()
     }
 
     #if os(iOS) || os(macOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -78,7 +79,7 @@ extension UserNotificationClient {
         center.getDeliveredNotifications { notifications in
           callback(.success(notifications.map(Notification.init(rawValue:))))
         }
-      }.eraseToAnyPublisher()
+      }.eraseToEffect()
     }
     #endif
 
@@ -87,7 +88,7 @@ extension UserNotificationClient {
         center.getNotificationSettings { settings in
           callback(.success(NotificationSettings(rawValue: settings)))
         }
-      }.eraseToAnyPublisher()
+      }.eraseToEffect()
     }
 
     #if os(iOS) || os(macOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -96,7 +97,7 @@ extension UserNotificationClient {
         center.getNotificationCategories { categories in
           callback(.success(categories))
         }
-      }.eraseToAnyPublisher()
+      }.eraseToEffect()
     }
     #endif
 
@@ -105,7 +106,7 @@ extension UserNotificationClient {
         center.getPendingNotificationRequests { requests in
           callback(.success(requests.map(NotificationRequest.init(rawValue:))))
         }
-      }.eraseToAnyPublisher()
+      }.eraseToEffect()
     }
 
     #if os(iOS) || os(macOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -137,7 +138,7 @@ extension UserNotificationClient {
             callback(.success(granted))
           }
         }
-      }.eraseToAnyPublisher()
+      }.eraseToEffect()
     }
 
     #if os(iOS) || os(macOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -153,7 +154,7 @@ extension UserNotificationClient {
     client.delegate = {
       subject
         .handleEvents(receiveCancel: { delegate = nil })
-        .eraseToAnyPublisher()
+        .eraseToEffect()
     }
     
     return client
