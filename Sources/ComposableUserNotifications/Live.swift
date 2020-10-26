@@ -1,6 +1,6 @@
 import Foundation
-import UserNotifications
 import Combine
+import UserNotifications
 
 extension UserNotificationClient {
   public static var live: UserNotificationClient {
@@ -51,85 +51,111 @@ extension UserNotificationClient {
     var delegate: Delegate? = Delegate(subject: subject)
     center.delegate = delegate
 
-    return Self(
-      add: { request in
-        Future { promise in
-          center.add(request) { error in
-            if let error = error {
-              promise(.failure(error))
-            } else {
-              promise(.success(()))
-            }
+    var client = UserNotificationClient()
+    client.add = { request in
+      Future { promise in
+        center.add(request) { error in
+          if let error = error {
+            promise(.failure(error))
+          } else {
+            promise(.success(()))
           }
-        }.eraseToAnyPublisher()
-      },
-      getAuthStatus: {
-        Future { promise in
-          center.getNotificationSettings { settings in
-            promise(.success(settings.authorizationStatus))
+        }
+      }.eraseToAnyPublisher()
+    }
+
+    client.getAuthStatus = {
+      Future { promise in
+        center.getNotificationSettings { settings in
+          promise(.success(settings.authorizationStatus))
+        }
+      }.eraseToAnyPublisher()
+    }
+
+    #if os(iOS) || os(macOS) || os(tvOS) || targetEnvironment(macCatalyst)
+    client.getDeliveredNotifications = {
+      Future { callback in
+        center.getDeliveredNotifications { notifications in
+          callback(.success(notifications.map(Notification.init(rawValue:))))
+        }
+      }.eraseToAnyPublisher()
+    }
+    #endif
+
+    client.getNotificationSettings = {
+      Future { callback in
+        center.getNotificationSettings { settings in
+          callback(.success(NotificationSettings(rawValue: settings)))
+        }
+      }.eraseToAnyPublisher()
+    }
+
+    #if os(iOS) || os(macOS) || os(tvOS) || targetEnvironment(macCatalyst)
+    client.getNotificationCategories = {
+      Future { callback in
+        center.getNotificationCategories { categories in
+          callback(.success(categories))
+        }
+      }.eraseToAnyPublisher()
+    }
+    #endif
+
+    client.getPendingNotificationRequests = {
+      Future { callback in
+        center.getPendingNotificationRequests { requests in
+          callback(.success(requests.map(NotificationRequest.init(rawValue:))))
+        }
+      }.eraseToAnyPublisher()
+    }
+
+    #if os(iOS) || os(macOS) || os(tvOS) || targetEnvironment(macCatalyst)
+    client.removeAllDeliveredNotifications = {
+      center.removeAllDeliveredNotifications()
+    }
+    #endif
+
+    client.removeAllPendingNotificationRequests = {
+      center.removeAllPendingNotificationRequests()
+    }
+
+    #if os(iOS) || os(macOS) || os(tvOS) || targetEnvironment(macCatalyst)
+    client.removeDeliveredNotifications = {
+      center.removeDeliveredNotifications(withIdentifiers: $0)
+    }
+    #endif
+
+    client.removePendingNotificationRequests = {
+      center.removePendingNotificationRequests(withIdentifiers: $0)
+    }
+
+    client.requestAuthorization = { options in
+      Future { callback in
+        center.requestAuthorization(options: options) { (granted, error) in
+          if let error = error {
+            callback(.failure(error as NSError))
+          } else {
+            callback(.success(granted))
           }
-        }.eraseToAnyPublisher()
-      },
-      getDeliveredNotifications: {
-        Future { callback in
-          center.getDeliveredNotifications { notifications in
-            callback(.success(notifications.map(Notification.init(rawValue:))))
-          }
-        }.eraseToAnyPublisher()
-      },
-      getNotificationSettings: {
-        Future { callback in
-          center.getNotificationSettings { settings in
-            callback(.success(NotificationSettings(rawValue: settings)))
-          }
-        }.eraseToAnyPublisher()
-      },
-      getNotificationCategories: {
-        Future { callback in
-          center.getNotificationCategories { categories in
-            callback(.success(categories))
-          }
-        }.eraseToAnyPublisher()
-      },
-      getPendingNotificationRequests: {
-        Future { callback in
-          center.getPendingNotificationRequests { requests in
-            callback(.success(requests.map(NotificationRequest.init(rawValue:))))
-          }
-        }.eraseToAnyPublisher()
-      },
-      removeAllDeliveredNotifications: {
-        center.removeAllDeliveredNotifications()
-      },
-      removeAllPendingNotificationRequests: {
-        center.removeAllPendingNotificationRequests()
-      },
-      removeDeliveredNotifications: {
-        center.removeDeliveredNotifications(withIdentifiers: $0)
-      },
-      removePendingNotificationRequests: {
-        center.removePendingNotificationRequests(withIdentifiers: $0)
-      },
-      requestAuthorization: { options in
-        Future { callback in
-          center.requestAuthorization(options: options) { (granted, error) in
-            if let error = error {
-              callback(.failure(error as NSError))
-            } else {
-              callback(.success(granted))
-            }
-          }
-        }.eraseToAnyPublisher()
-      },
-      setNotificationCategories: {
-        center.setNotificationCategories($0)
-      },
-      supportsContentExtensions: {
-        center.supportsContentExtensions
-      },
-      delegate: subject
+        }
+      }.eraseToAnyPublisher()
+    }
+
+    #if os(iOS) || os(macOS) || os(tvOS) || targetEnvironment(macCatalyst)
+    client.setNotificationCategories = {
+      center.setNotificationCategories($0)
+    }
+    #endif
+
+    client.supportsContentExtensions = {
+      center.supportsContentExtensions
+    }
+
+    client.delegate = {
+      subject
         .handleEvents(receiveCancel: { delegate = nil })
         .eraseToAnyPublisher()
-    )
+    }
+    
+    return client
   }
 }

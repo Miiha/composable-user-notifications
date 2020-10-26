@@ -3,52 +3,71 @@ import UserNotifications
 import Combine
 import CoreLocation
 
+@available(iOS 10.0, *)
+@available(macCatalyst 13.0, *)
+@available(macOS 10.14, *)
+@available(tvOS 10.0, *)
+@available(watchOS 3.0, *)
 public struct UserNotificationClient {
-  public var add: (UNNotificationRequest) -> AnyPublisher<Void, Error>
-  public var getAuthStatus: () -> AnyPublisher<UNAuthorizationStatus, Never>
-  public var getDeliveredNotifications: () -> AnyPublisher<[Notification], Never>
-  public var getNotificationCategories: () -> AnyPublisher<Set<UNNotificationCategory>, Never>
-  public var getNotificationSettings: () -> AnyPublisher<NotificationSettings, Never>
-  public var getPendingNotificationRequests: () -> AnyPublisher<[NotificationRequest], Never>
-  public var removeAllDeliveredNotifications: () -> Void
-  public var removeAllPendingNotificationRequests: () -> Void
-  public var removeDeliveredNotifications: ([String]) -> Void
-  public var removePendingNotificationRequests: ([String]) -> Void
-  public var requestAuthorization: (UNAuthorizationOptions) -> AnyPublisher<Bool, NSError>
-  public var setNotificationCategories: (Set<UNNotificationCategory>) -> Void
-  public var supportsContentExtensions: () -> Bool
-  public var delegate: AnyPublisher<DelegateEvent, Never>
+  public var add: (UNNotificationRequest) -> AnyPublisher<Void, Error> = { _ in
+    _unimplemented("add")
+  }
 
-  public init(
-    add: @escaping (UNNotificationRequest) -> AnyPublisher<Void, Error>,
-    getAuthStatus: @escaping () -> AnyPublisher<UNAuthorizationStatus, Never>,
-    getDeliveredNotifications: @escaping () -> AnyPublisher<[Notification], Never>,
-    getNotificationSettings: @escaping () -> AnyPublisher<NotificationSettings, Never>,
-    getNotificationCategories: @escaping () -> AnyPublisher<Set<UNNotificationCategory>, Never>,
-    getPendingNotificationRequests: @escaping () -> AnyPublisher<[NotificationRequest], Never>,
-    removeAllDeliveredNotifications: @escaping () -> Void,
-    removeAllPendingNotificationRequests: @escaping () -> Void,
-    removeDeliveredNotifications: @escaping ([String]) -> Void,
-    removePendingNotificationRequests: @escaping ([String]) -> Void,
-    requestAuthorization: @escaping (UNAuthorizationOptions) -> AnyPublisher<Bool, NSError>,
-    setNotificationCategories: @escaping (Set<UNNotificationCategory>) -> Void,
-    supportsContentExtensions: @escaping () -> Bool,
-    delegate: AnyPublisher<DelegateEvent, Never>
-  ) {
-    self.add = add
-    self.getAuthStatus = getAuthStatus
-    self.getDeliveredNotifications = getDeliveredNotifications
-    self.getNotificationSettings = getNotificationSettings
-    self.getNotificationCategories = getNotificationCategories
-    self.getPendingNotificationRequests = getPendingNotificationRequests
-    self.removeAllDeliveredNotifications = removeAllDeliveredNotifications
-    self.removeAllPendingNotificationRequests = removeAllPendingNotificationRequests
-    self.removeDeliveredNotifications = removeDeliveredNotifications
-    self.removePendingNotificationRequests = removePendingNotificationRequests
-    self.requestAuthorization = requestAuthorization
-    self.setNotificationCategories = setNotificationCategories
-    self.supportsContentExtensions = supportsContentExtensions
-    self.delegate = delegate
+  public var getAuthStatus: () -> AnyPublisher<UNAuthorizationStatus, Never> = {
+    _unimplemented("getAuthStatus")
+  }
+
+  @available(tvOS, unavailable)
+  public var getDeliveredNotifications: () -> AnyPublisher<[Notification], Never> = {
+    _unimplemented("getDeliveredNotifications")
+  }
+
+  @available(tvOS, unavailable)
+  public var getNotificationCategories: () -> AnyPublisher<Set<UNNotificationCategory>, Never> = {
+    _unimplemented("getNotificationCategories")
+  }
+
+  public var getNotificationSettings: () -> AnyPublisher<NotificationSettings, Never> = {
+    _unimplemented("getNotificationSettings")
+  }
+
+  public var getPendingNotificationRequests: () -> AnyPublisher<[NotificationRequest], Never> = {
+    _unimplemented("getPendingNotificationRequests")
+  }
+
+  @available(tvOS, unavailable)
+  public var removeAllDeliveredNotifications: () -> Void = {
+    _unimplemented("removeAllDeliveredNotifications")
+  }
+
+  public var removeAllPendingNotificationRequests: () -> Void = {
+    _unimplemented("removeAllPendingNotificationRequests")
+  }
+
+  @available(tvOS, unavailable)
+  public var removeDeliveredNotifications: ([String]) -> Void = { _ in
+    _unimplemented("removeDeliveredNotifications")
+  }
+
+  public var removePendingNotificationRequests: ([String]) -> Void = { _ in
+    _unimplemented("removePendingNotificationRequests")
+  }
+
+  public var requestAuthorization: (UNAuthorizationOptions) -> AnyPublisher<Bool, NSError> = { _ in
+    _unimplemented("requestAuthorization")
+  }
+
+  @available(tvOS, unavailable)
+  public var setNotificationCategories: (Set<UNNotificationCategory>) -> Void = { _ in
+    _unimplemented("setNotificationCategories")
+  }
+
+  public var supportsContentExtensions: () -> Bool = {
+    _unimplemented("supportsContentExtensions")
+  }
+
+  public var delegate: () -> AnyPublisher<DelegateEvent, Never> = {
+    _unimplemented("delegate")
   }
 
   public enum DelegateEvent {
@@ -91,8 +110,10 @@ public struct NotificationRequest {
         return PushNotificationTrigger(rawValue: trigger)
       case let trigger as UNCalendarNotificationTrigger:
         return CalendarNotificationTrigger(rawValue: trigger)
+      #if os(iOS) || os(watchOS) || os(tvOS)
       case let trigger as UNLocationNotificationTrigger:
         return LocationNotificationTrigger(rawValue: trigger)
+      #endif
       default:
         return nil
       }
@@ -108,7 +129,7 @@ public struct NotificationContent {
   public var body: String
   public var badge: NSNumber?
   public var sound: UNNotificationSound?
-  public var launchImageName: String
+//  public var launchImageName: String
   public var userInfo: [AnyHashable : Any]
   public var attachments: [NotificationAttachment]
   public var summaryArgument: String
@@ -125,7 +146,7 @@ public struct NotificationContent {
     self.body = rawValue.body
     self.badge = rawValue.badge
     self.sound = rawValue.sound
-    self.launchImageName = rawValue.launchImageName
+//    self.launchImageName = rawValue.launchImageName
     self.userInfo = rawValue.userInfo
     self.attachments = rawValue.attachments.map(NotificationAttachment.init)
     self.summaryArgument = rawValue.summaryArgument
@@ -202,6 +223,7 @@ public struct CalendarNotificationTrigger: NotificationTrigger {
   }
 }
 
+@available(macOS, unavailable)
 public struct LocationNotificationTrigger: NotificationTrigger, Equatable {
   public let rawValue: UNLocationNotificationTrigger?
 
@@ -253,10 +275,10 @@ public struct NotificationSettings {
 
   public var alertSetting: UNNotificationSetting
   public var alertStyle: UNAlertStyle
-  public var announcementSetting: UNNotificationSetting
+//  public var announcementSetting: UNNotificationSetting
   public var authorizationStatus: UNAuthorizationStatus
   public var badgeSetting: UNNotificationSetting
-  public var carPlaySetting: UNNotificationSetting
+//  public var carPlaySetting: UNNotificationSetting
   public var criticalAlertSetting: UNNotificationSetting
   public var lockScreenSetting: UNNotificationSetting
   public var notificationCenterSetting: UNNotificationSetting
@@ -266,12 +288,13 @@ public struct NotificationSettings {
 
   public init(rawValue: UNNotificationSettings) {
     self.rawValue = rawValue
+
     self.alertSetting = rawValue.alertSetting
     self.alertStyle = rawValue.alertStyle
-    self.announcementSetting = rawValue.announcementSetting
+//    self.announcementSetting = rawValue.announcementSetting
     self.authorizationStatus = rawValue.authorizationStatus
     self.badgeSetting = rawValue.badgeSetting
-    self.carPlaySetting = rawValue.carPlaySetting
+//    self.carPlaySetting = rawValue.carPlaySetting
     self.criticalAlertSetting = rawValue.criticalAlertSetting
     self.lockScreenSetting = rawValue.lockScreenSetting
     self.notificationCenterSetting = rawValue.notificationCenterSetting

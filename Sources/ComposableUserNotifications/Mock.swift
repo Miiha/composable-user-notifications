@@ -3,22 +3,7 @@ import Combine
 
 extension UserNotificationClient {
   static var mock: UserNotificationClient {
-    Self(
-      add: { _ in _unimplemented("add") },
-      getAuthStatus: { _unimplemented("getAuthStatus") },
-      getDeliveredNotifications: { _unimplemented("getDeliveredNotifications") },
-      getNotificationSettings: { _unimplemented("getNotificationSettings") },
-      getNotificationCategories: { _unimplemented("getNotificationCategories") },
-      getPendingNotificationRequests: { _unimplemented("getPendingNotificationRequests") },
-      removeAllDeliveredNotifications: { _unimplemented("removeAllDeliveredNotifications") },
-      removeAllPendingNotificationRequests: { _unimplemented("removeAllPendingNotificationRequests") },
-      removeDeliveredNotifications: { _ in _unimplemented("removeDeliveredNotifications") },
-      removePendingNotificationRequests: { _ in _unimplemented("removePendingNotificationRequests") },
-      requestAuthorization: { _ in _unimplemented("requestAuthorization") },
-      setNotificationCategories: { _ in _unimplemented("setNotificationCategories") },
-      supportsContentExtensions: { _unimplemented("supportsContentExtensions") },
-      delegate: Empty().eraseToAnyPublisher()
-    )
+    Self()
   }
 }
 
