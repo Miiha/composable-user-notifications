@@ -23,14 +23,6 @@ extension UserNotificationClient {
       }
     }
 
-    client.getAuthStatus = {
-      Effect.future { callback in
-        center.getNotificationSettings { settings in
-          callback(.success(settings.authorizationStatus))
-        }
-      }
-    }
-
     #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
     client.getDeliveredNotifications = {
       Effect.future { callback in
@@ -42,7 +34,7 @@ extension UserNotificationClient {
     #endif
 
     client.getNotificationSettings = {
-      Future { callback in
+      Effect.future { callback in
         center.getNotificationSettings { settings in
           callback(.success(NotificationSettings(rawValue: settings)))
         }

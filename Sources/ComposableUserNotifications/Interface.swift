@@ -13,10 +13,6 @@ public struct UserNotificationClient {
     _unimplemented("add")
   }
 
-  public var getAuthStatus: () -> Effect<UNAuthorizationStatus, Never> = {
-    _unimplemented("getAuthStatus")
-  }
-
   @available(tvOS, unavailable)
   public var getDeliveredNotifications: () -> Effect<[Notification], Never> = {
     _unimplemented("getDeliveredNotifications")
