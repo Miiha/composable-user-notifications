@@ -5,51 +5,9 @@ import UserNotifications
 
 extension UserNotificationClient {
   public static var live: UserNotificationClient {
-    final class Delegate: NSObject, UNUserNotificationCenterDelegate {
-      let subject: PassthroughSubject<Action, Never>
-
-      init(subject: PassthroughSubject<Action, Never>) {
-        self.subject = subject
-      }
-
-      func userNotificationCenter(_ center: UNUserNotificationCenter,
-                                  willPresent notification: UNNotification,
-                                  withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-
-        subject.send(
-          .willPresentNotification(
-            Notification(rawValue: notification),
-            completion: completionHandler)
-        )
-      }
-
-      func userNotificationCenter(_ center: UNUserNotificationCenter,
-                                  didReceive response: UNNotificationResponse,
-                                  withCompletionHandler completionHandler: @escaping () -> Void) {
-
-        let mappedResponse: NotificationResponseType = {
-          switch response {
-          case let response as UNTextInputNotificationResponse:
-            return TextInputNotificationResponse(rawValue: response)
-          default:
-            return NotificationResponse(rawValue: response)
-          }
-        }()
-        subject.send(.didReceiveResponse(mappedResponse, completion: completionHandler))
-      }
-
-      func userNotificationCenter(_ center: UNUserNotificationCenter,
-                                  openSettingsFor notification: UNNotification?) {
-
-
-        let mappedNotification = notification.map(Notification.init)
-        subject.send(.openSettingsForNotification(mappedNotification))
-      }
-    }
-
     let center = UNUserNotificationCenter.current()
     let subject = PassthroughSubject<Action, Never>()
-    var delegate: Delegate? = Delegate(subject: subject)
+    var delegate: UserNotificationCenterDelegate? = UserNotificationCenterDelegate(subject)
     center.delegate = delegate
 
     var client = UserNotificationClient()
@@ -73,7 +31,7 @@ extension UserNotificationClient {
       }.eraseToEffect()
     }
 
-    #if os(iOS) || os(macOS) || os(tvOS) || targetEnvironment(macCatalyst)
+    #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
     client.getDeliveredNotifications = {
       Future { callback in
         center.getDeliveredNotifications { notifications in
@@ -91,7 +49,7 @@ extension UserNotificationClient {
       }.eraseToEffect()
     }
 
-    #if os(iOS) || os(macOS) || os(tvOS) || targetEnvironment(macCatalyst)
+    #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
     client.getNotificationCategories = {
       Future { callback in
         center.getNotificationCategories { categories in
@@ -109,7 +67,7 @@ extension UserNotificationClient {
       }.eraseToEffect()
     }
 
-    #if os(iOS) || os(macOS) || os(tvOS) || targetEnvironment(macCatalyst)
+    #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
     client.removeAllDeliveredNotifications = {
       center.removeAllDeliveredNotifications()
     }
@@ -119,7 +77,7 @@ extension UserNotificationClient {
       center.removeAllPendingNotificationRequests()
     }
 
-    #if os(iOS) || os(macOS) || os(tvOS) || targetEnvironment(macCatalyst)
+    #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
     client.removeDeliveredNotifications = {
       center.removeDeliveredNotifications(withIdentifiers: $0)
     }
@@ -141,7 +99,7 @@ extension UserNotificationClient {
       }.eraseToEffect()
     }
 
-    #if os(iOS) || os(macOS) || os(tvOS) || targetEnvironment(macCatalyst)
+    #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
     client.setNotificationCategories = {
       center.setNotificationCategories($0)
     }
@@ -159,4 +117,50 @@ extension UserNotificationClient {
     
     return client
   }
+}
+
+final class UserNotificationCenterDelegate: NSObject, UNUserNotificationCenterDelegate {
+  let subject: PassthroughSubject<UserNotificationClient.Action, Never>
+
+  init(_ subject: PassthroughSubject<UserNotificationClient.Action, Never>) {
+    self.subject = subject
+  }
+
+  func userNotificationCenter(_ center: UNUserNotificationCenter,
+                              willPresent notification: UNNotification,
+                              withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+
+    subject.send(
+      .willPresentNotification(
+        Notification(rawValue: notification),
+        completion: completionHandler)
+    )
+  }
+
+  #if os(iOS) || os(macOS) ||  os(watchOS) || targetEnvironment(macCatalyst)
+  func userNotificationCenter(_ center: UNUserNotificationCenter,
+                              didReceive response: UNNotificationResponse,
+                              withCompletionHandler completionHandler: @escaping () -> Void) {
+
+    let mappedResponse: NotificationResponseType = {
+      switch response {
+      case let response as UNTextInputNotificationResponse:
+        return TextInputNotificationResponse(rawValue: response)
+      default:
+        return NotificationResponse(rawValue: response)
+      }
+    }()
+    subject.send(.didReceiveResponse(mappedResponse, completion: completionHandler))
+  }
+  #endif
+
+  #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+  func userNotificationCenter(_ center: UNUserNotificationCenter,
+                              openSettingsFor notification: UNNotification?) {
+
+
+    let mappedNotification = notification.map(Notification.init)
+    subject.send(.openSettingsForNotification(mappedNotification))
+  }
+  #endif
 }

@@ -110,7 +110,7 @@ public struct NotificationRequest {
         return PushNotificationTrigger(rawValue: trigger)
       case let trigger as UNCalendarNotificationTrigger:
         return CalendarNotificationTrigger(rawValue: trigger)
-      #if os(iOS) || os(watchOS) || os(tvOS)
+      #if os(iOS) || os(watchOS)
       case let trigger as UNLocationNotificationTrigger:
         return LocationNotificationTrigger(rawValue: trigger)
       #endif
@@ -224,7 +224,7 @@ public struct CalendarNotificationTrigger: NotificationTrigger {
 }
 
 @available(macOS, unavailable)
-public struct LocationNotificationTrigger: NotificationTrigger, Equatable {
+public struct LocationNotificationTrigger: NotificationTrigger {
   public let rawValue: UNLocationNotificationTrigger?
 
   public var repeats: Bool
@@ -242,6 +242,7 @@ public protocol NotificationResponseType {
   var notification: Notification { get }
 }
 
+@available(tvOS, unavailable)
 public struct NotificationResponse: NotificationResponseType {
   public let rawValue: UNNotificationResponse?
 
