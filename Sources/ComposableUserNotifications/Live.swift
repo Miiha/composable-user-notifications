@@ -12,32 +12,32 @@ extension UserNotificationClient {
 
     var client = UserNotificationClient()
     client.add = { request in
-      Future { promise in
+      Effect.future { callback in
         center.add(request) { error in
           if let error = error {
-            promise(.failure(error))
+            callback(.failure(error))
           } else {
-            promise(.success(()))
+            callback(.success(()))
           }
         }
-      }.eraseToEffect()
+      }
     }
 
     client.getAuthStatus = {
-      Future { promise in
+      Effect.future { callback in
         center.getNotificationSettings { settings in
-          promise(.success(settings.authorizationStatus))
+          callback(.success(settings.authorizationStatus))
         }
-      }.eraseToEffect()
+      }
     }
 
     #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
     client.getDeliveredNotifications = {
-      Future { callback in
+      Effect.future { callback in
         center.getDeliveredNotifications { notifications in
           callback(.success(notifications.map(Notification.init(rawValue:))))
         }
-      }.eraseToEffect()
+      }
     }
     #endif
 
@@ -51,20 +51,20 @@ extension UserNotificationClient {
 
     #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
     client.getNotificationCategories = {
-      Future { callback in
+      Effect.future { callback in
         center.getNotificationCategories { categories in
           callback(.success(categories))
         }
-      }.eraseToEffect()
+      }
     }
     #endif
 
     client.getPendingNotificationRequests = {
-      Future { callback in
+      Effect.future { callback in
         center.getPendingNotificationRequests { requests in
           callback(.success(requests.map(NotificationRequest.init(rawValue:))))
         }
-      }.eraseToEffect()
+      }
     }
 
     #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
@@ -88,7 +88,7 @@ extension UserNotificationClient {
     }
 
     client.requestAuthorization = { options in
-      Future { callback in
+      Effect.future { callback in
         center.requestAuthorization(options: options) { (granted, error) in
           if let error = error {
             callback(.failure(error as NSError))
@@ -96,7 +96,7 @@ extension UserNotificationClient {
             callback(.success(granted))
           }
         }
-      }.eraseToEffect()
+      }
     }
 
     #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
