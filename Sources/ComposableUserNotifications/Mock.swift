@@ -1,9 +1,64 @@
 import Foundation
-import Combine
+import ComposableArchitecture
+import UserNotifications
 
 extension UserNotificationClient {
-  static var mock: UserNotificationClient {
-    Self()
+  static func mock(
+    add: @escaping (UNNotificationRequest) -> Effect<Void, Error> = { _ in
+      _unimplemented("add")
+    },
+    getDeliveredNotifications: @escaping () -> Effect<[Notification], Never> = {
+      _unimplemented("getDeliveredNotifications")
+    },
+    getNotificationCategories: @escaping () -> Effect<Set<UNNotificationCategory>, Never> = {
+      _unimplemented("getDeliveredNotifications")
+    },
+    getNotificationSettings: @escaping () -> Effect<NotificationSettings, Never> = {
+      _unimplemented("getNotificationSettings")
+    },
+    getPendingNotificationRequests: @escaping () -> Effect<[NotificationRequest], Never> = {
+      _unimplemented("getPendingNotificationRequests")
+    },
+    removeAllDeliveredNotifications: @escaping () -> Void = {
+      _unimplemented("removeAllDeliveredNotifications")
+    },
+    removeAllPendingNotificationRequests: @escaping () -> Void = {
+      _unimplemented("removeAllPendingNotificationRequests")
+    },
+    removeDeliveredNotifications: @escaping ([String]) -> Void = { _ in
+      _unimplemented("removeDeliveredNotifications")
+    },
+    removePendingNotificationRequests: @escaping ([String]) -> Void = { _ in
+      _unimplemented("removePendingNotificationRequests")
+    },
+    requestAuthorization: @escaping (UNAuthorizationOptions) -> Effect<Bool, NSError> = { _ in
+      _unimplemented("requestAuthorization")
+    },
+    setNotificationCategories: @escaping (Set<UNNotificationCategory>) -> Void = { _ in
+      _unimplemented("setNotificationCategories")
+    },
+    supportsContentExtensions: @escaping () -> Bool = {
+      _unimplemented("setNotificationCategories")
+    },
+    delegate: @escaping () -> Effect<Action, Never> = {
+      _unimplemented("getDeliveredNotifications")
+    }
+  ) -> Self {
+    Self(
+      add: add,
+      getDeliveredNotifications: getDeliveredNotifications,
+      getNotificationCategories: getNotificationCategories,
+      getNotificationSettings: getNotificationSettings,
+      getPendingNotificationRequests: getPendingNotificationRequests,
+      removeAllDeliveredNotifications: removeAllDeliveredNotifications,
+      removeAllPendingNotificationRequests: removeAllPendingNotificationRequests,
+      removeDeliveredNotifications: removeDeliveredNotifications,
+      removePendingNotificationRequests: removePendingNotificationRequests,
+      requestAuthorization: requestAuthorization,
+      setNotificationCategories: setNotificationCategories,
+      supportsContentExtensions: supportsContentExtensions,
+      delegate: delegate
+    )
   }
 }
 
