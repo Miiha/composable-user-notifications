@@ -1,14 +1,29 @@
-import Foundation
 import CoreLocation
 import ComposableArchitecture
 import UserNotifications
 
+/// A wrapper around UserNotifications's `UNUserNotificationCenter` that exposes its functionality through
+/// effects and actions, making it easy to use with the Composable Architecture and easy to test.
 @available(iOS 10.0, *)
 @available(macCatalyst 13.0, *)
 @available(macOS 10.14, *)
 @available(tvOS 10.0, *)
 @available(watchOS 3.0, *)
 public struct UserNotificationClient {
+  /// Actions that correspond to `UNUserNotificationCenterDelegate` methods.
+  ///
+  /// See `UNUserNotificationCenterDelegate` for more information.
+  public enum Action {
+    case willPresentNotification(
+          _ notification: Notification,
+          completion: (UNNotificationPresentationOptions) -> Void)
+
+    @available(tvOS, unavailable)
+    case didReceiveResponse(_ response: NotificationResponseType, completion: () -> Void)
+
+    case openSettingsForNotification(_ notification: Notification?)
+  }
+
   public var add: (UNNotificationRequest) -> Effect<Void, Error> = { _ in
     _unimplemented("add")
   }
@@ -62,19 +77,11 @@ public struct UserNotificationClient {
     _unimplemented("supportsContentExtensions")
   }
 
+  /// This Effect represents calls to the `UNUserNotificationCenterDelegate`.
+  /// Handling the completion handlers of the `UNUserNotificationCenterDelegate`s methods
+  /// by multiple observers might lead to unexpected behaviour.
   public var delegate: () -> Effect<Action, Never> = {
     _unimplemented("delegate")
-  }
-
-  public enum Action {
-    case willPresentNotification(
-          _ notification: Notification,
-          completion: (UNNotificationPresentationOptions) -> Void)
-
-    @available(tvOS, unavailable)
-    case didReceiveResponse(_ response: NotificationResponseType, completion: () -> Void)
-
-    case openSettingsForNotification(_ notification: Notification?)
   }
 }
 

@@ -8,7 +8,6 @@ extension UserNotificationClient {
     let center = UNUserNotificationCenter.current()
     let subject = PassthroughSubject<Action, Never>()
     var delegate: UserNotificationCenterDelegate? = UserNotificationCenterDelegate(subject)
-    center.delegate = delegate
 
     var client = UserNotificationClient()
     client.add = { request in
@@ -102,7 +101,9 @@ extension UserNotificationClient {
     }
 
     client.delegate = {
-      subject
+      center.delegate = delegate
+
+      return subject
         .handleEvents(receiveCancel: { delegate = nil })
         .eraseToEffect()
     }
