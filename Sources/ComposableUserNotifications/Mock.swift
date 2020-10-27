@@ -3,6 +3,7 @@ import ComposableArchitecture
 import UserNotifications
 
 extension UserNotificationClient {
+  @available(tvOS, unavailable)
   static func mock(
     add: @escaping (UNNotificationRequest) -> Effect<Void, Error> = { _ in
       _unimplemented("add")
@@ -11,7 +12,7 @@ extension UserNotificationClient {
       _unimplemented("getDeliveredNotifications")
     },
     getNotificationCategories: @escaping () -> Effect<Set<UNNotificationCategory>, Never> = {
-      _unimplemented("getDeliveredNotifications")
+      _unimplemented("getNotificationCategories")
     },
     getNotificationSettings: @escaping () -> Effect<NotificationSettings, Never> = {
       _unimplemented("getNotificationSettings")
@@ -56,6 +57,48 @@ extension UserNotificationClient {
       removePendingNotificationRequests: removePendingNotificationRequests,
       requestAuthorization: requestAuthorization,
       setNotificationCategories: setNotificationCategories,
+      supportsContentExtensions: supportsContentExtensions,
+      delegate: delegate
+    )
+  }
+
+  @available(iOS, unavailable)
+  @available(watchOS, unavailable)
+  @available(macOS, unavailable)
+  @available(macCatalyst, unavailable)
+  static func mock(
+    add: @escaping (UNNotificationRequest) -> Effect<Void, Error> = { _ in
+      _unimplemented("add")
+    },
+    getNotificationSettings: @escaping () -> Effect<NotificationSettings, Never> = {
+      _unimplemented("getNotificationSettings")
+    },
+    getPendingNotificationRequests: @escaping () -> Effect<[NotificationRequest], Never> = {
+      _unimplemented("getPendingNotificationRequests")
+    },
+    removeAllPendingNotificationRequests: @escaping () -> Void = {
+      _unimplemented("removeAllPendingNotificationRequests")
+    },
+    removePendingNotificationRequests: @escaping ([String]) -> Void = { _ in
+      _unimplemented("removePendingNotificationRequests")
+    },
+    requestAuthorization: @escaping (UNAuthorizationOptions) -> Effect<Bool, NSError> = { _ in
+      _unimplemented("requestAuthorization")
+    },
+    supportsContentExtensions: @escaping () -> Bool = {
+      _unimplemented("setNotificationCategories")
+    },
+    delegate: @escaping () -> Effect<Action, Never> = {
+      _unimplemented("getDeliveredNotifications")
+    }
+  ) -> Self {
+    Self(
+      add: add,
+      getNotificationSettings: getNotificationSettings,
+      getPendingNotificationRequests: getPendingNotificationRequests,
+      removeAllPendingNotificationRequests: removeAllPendingNotificationRequests,
+      removePendingNotificationRequests: removePendingNotificationRequests,
+      requestAuthorization: requestAuthorization,
       supportsContentExtensions: supportsContentExtensions,
       delegate: delegate
     )
