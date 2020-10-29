@@ -185,7 +185,7 @@ public struct NotificationContent {
 
 @available(tvOS, unavailable)
 public struct NotificationAttachment {
-  public let rawValue: UNNotificationAttachment
+  public let rawValue: UNNotificationAttachment?
 
   public var identifier: String
   public var url: URL
@@ -193,9 +193,18 @@ public struct NotificationAttachment {
 
   public init(rawValue: UNNotificationAttachment) {
     self.rawValue = rawValue
+
     self.identifier = rawValue.identifier
     self.url = rawValue.url
     self.type = rawValue.type
+  }
+
+  public init(identifier: String, url: URL, type: String) {
+    self.rawValue = nil
+
+    self.identifier = identifier
+    self.url = url
+    self.type = type
   }
 }
 
@@ -208,6 +217,10 @@ public struct PushNotificationTrigger: NotificationTrigger {
 
   public init(rawValue: UNPushNotificationTrigger) {
     self.repeats = rawValue.repeats
+  }
+
+  public init(repeats: Bool) {
+    self.repeats = repeats
   }
 }
 
@@ -226,6 +239,14 @@ public struct TimeIntervalNotificationTrigger: NotificationTrigger {
     self.nextTriggerDate = rawValue.nextTriggerDate
   }
 
+  public init(repeats: Bool, timeInterval: TimeInterval, nextTriggerDate: @escaping () -> Date?) {
+    self.rawValue = nil
+
+    self.repeats = repeats
+    self.timeInterval = timeInterval
+    self.nextTriggerDate = nextTriggerDate
+  }
+
   public static func == (lhs: TimeIntervalNotificationTrigger, rhs: TimeIntervalNotificationTrigger) -> Bool {
     lhs.repeats == rhs.repeats && lhs.timeInterval == rhs.timeInterval
   }
@@ -238,11 +259,20 @@ public struct CalendarNotificationTrigger: NotificationTrigger {
   public var dateComponents: DateComponents
   public var nextTriggerDate: () -> Date?
 
-  init(rawValue: UNCalendarNotificationTrigger) {
+  public init(rawValue: UNCalendarNotificationTrigger) {
     self.rawValue = rawValue
+
     self.repeats = rawValue.repeats
     self.dateComponents = rawValue.dateComponents
     self.nextTriggerDate = rawValue.nextTriggerDate
+  }
+
+  public init(repeats: Bool, dateComponents: DateComponents, nextTriggerDate: @escaping () -> Date?) {
+    self.rawValue = nil
+
+    self.repeats = repeats
+    self.dateComponents = dateComponents
+    self.nextTriggerDate = nextTriggerDate
   }
 
   public static func == (lhs: CalendarNotificationTrigger, rhs: CalendarNotificationTrigger) -> Bool {
@@ -258,10 +288,18 @@ public struct LocationNotificationTrigger: NotificationTrigger {
   public var repeats: Bool
   public var region: Region
 
-  init(rawValue: UNLocationNotificationTrigger) {
+  public init(rawValue: UNLocationNotificationTrigger) {
     self.rawValue = rawValue
+
     self.repeats = rawValue.repeats
     self.region = Region(rawValue: rawValue.region)
+  }
+
+  public init(repeats: Bool, region: Region) {
+    self.rawValue = nil
+
+    self.repeats = repeats
+    self.region = region
   }
 }
 
@@ -283,6 +321,13 @@ public struct NotificationResponse: NotificationResponseType {
     self.actionIdentifier = rawValue.actionIdentifier
     self.notification = Notification(rawValue: rawValue.notification)
   }
+
+  public init(actionIdentifier: String, notification: Notification) {
+    self.rawValue = nil
+
+    self.actionIdentifier = actionIdentifier
+    self.notification = notification
+  }
 }
 
 @available(tvOS, unavailable)
@@ -299,6 +344,15 @@ public struct TextInputNotificationResponse: NotificationResponseType {
     self.actionIdentifier = rawValue.actionIdentifier
     self.notification = Notification(rawValue: rawValue.notification)
     self.userText = rawValue.userText
+  }
+
+  @available(tvOS, unavailable)
+  public init(actionIdentifier: String, notification: Notification, userText: String) {
+    self.rawValue = nil
+
+    self.actionIdentifier = actionIdentifier
+    self.notification = notification
+    self.userText = userText
   }
 }
 
