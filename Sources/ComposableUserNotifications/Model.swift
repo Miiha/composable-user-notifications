@@ -46,6 +46,8 @@ extension Notification {
           return .push(Trigger.Push(rawValue: trigger))
         case let trigger as UNCalendarNotificationTrigger:
           return .calendar(Trigger.Calendar(rawValue: trigger))
+        case let trigger as UNTimeIntervalNotificationTrigger:
+          return .timeInterval(Trigger.TimeInterval(rawValue: trigger))
         #if os(iOS) || os(watchOS)
         case let trigger as UNLocationNotificationTrigger:
           return .location(Trigger.Location(rawValue: trigger))
