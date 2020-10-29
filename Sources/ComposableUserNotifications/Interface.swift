@@ -19,7 +19,7 @@ public struct UserNotificationClient {
           completion: (UNNotificationPresentationOptions) -> Void)
 
     @available(tvOS, unavailable)
-    case didReceiveResponse(_ response: NotificationResponseType, completion: () -> Void)
+    case didReceiveResponse(_ response: Response, completion: () -> Void)
 
     case openSettingsForNotification(_ notification: Notification?)
   }

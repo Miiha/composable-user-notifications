@@ -1,7 +1,7 @@
 import UserNotifications
 import CoreLocation
 
-public struct Notification {
+public struct Notification: Equatable {
   public let rawValue: UNNotification?
 
   public var date: Date
@@ -22,7 +22,7 @@ public struct Notification {
   }
 }
 
-public struct NotificationRequest {
+public struct NotificationRequest: Equatable {
   public let rawValue: UNNotificationRequest?
 
   public var identifier: String
@@ -38,12 +38,12 @@ public struct NotificationRequest {
     self.trigger = {
       switch rawValue.trigger {
       case let trigger as UNPushNotificationTrigger:
-        return PushNotificationTrigger(rawValue: trigger)
+        return .push(NotificationTrigger.PushNotification(rawValue: trigger))
       case let trigger as UNCalendarNotificationTrigger:
-        return CalendarNotificationTrigger(rawValue: trigger)
+        return .calendar(NotificationTrigger.Calendar(rawValue: trigger))
       #if os(iOS) || os(watchOS)
       case let trigger as UNLocationNotificationTrigger:
-        return LocationNotificationTrigger(rawValue: trigger)
+        return .location(NotificationTrigger.Location(rawValue: trigger))
       #endif
       default:
         return nil
@@ -59,10 +59,8 @@ public struct NotificationRequest {
   }
 }
 
-public struct NotificationContent {
-  public var rawValue: () -> UNNotificationContent? = {
-    _unimplemented("rawValue")
-  }
+public struct NotificationContent: Equatable {
+  public var rawValue: UNNotificationContent?
 
   @available(tvOS, unavailable)
   public var title: () -> String = {
@@ -131,7 +129,7 @@ public struct NotificationContent {
   }
 
   public init(rawValue: UNNotificationContent) {
-    self.rawValue = { rawValue }
+    self.rawValue = rawValue
 
     #if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
     self.title = { rawValue.title }
@@ -181,6 +179,10 @@ public struct NotificationContent {
 
     self.targetContentIdentifier = { rawValue.targetContentIdentifier }
   }
+
+  public static func == (lhs: NotificationContent, rhs: NotificationContent) -> Bool {
+    lhs.rawValue == rhs.rawValue
+  }
 }
 
 @available(tvOS, unavailable)
@@ -208,151 +210,167 @@ public struct NotificationAttachment {
   }
 }
 
-public protocol NotificationTrigger {
-  var repeats: Bool { get }
+public enum NotificationTrigger: Equatable {
+  case push(PushNotification)
+  case timeInterval(TimeInterval)
+  case calendar(Calendar)
+
+  @available(macOS, unavailable)
+  case location(Location)
 }
 
-public struct PushNotificationTrigger: NotificationTrigger {
-  public let repeats: Bool
+extension NotificationTrigger {
+  public struct PushNotification: Equatable {
+    public var rawValue: UNPushNotificationTrigger?
 
-  public init(rawValue: UNPushNotificationTrigger) {
-    self.repeats = rawValue.repeats
+    public var repeats: Bool
+
+    public init(rawValue: UNPushNotificationTrigger) {
+      self.repeats = rawValue.repeats
+    }
+
+    public init(repeats: Bool) {
+      self.repeats = repeats
+    }
+
+    public static func == (lhs: PushNotification, rhs: PushNotification) -> Bool {
+      lhs.rawValue == rhs.rawValue
+    }
   }
 
-  public init(repeats: Bool) {
-    self.repeats = repeats
-  }
-}
+  public struct TimeInterval: Equatable {
+    public let rawValue: UNTimeIntervalNotificationTrigger?
 
-public struct TimeIntervalNotificationTrigger: NotificationTrigger {
-  public let rawValue: UNTimeIntervalNotificationTrigger?
+    public var repeats: Bool
+    public var timeInterval: Foundation.TimeInterval
+    public var nextTriggerDate: () -> Date?
 
-  public var repeats: Bool
-  public var timeInterval: TimeInterval
-  public var nextTriggerDate: () -> Date?
+    init(rawValue: UNTimeIntervalNotificationTrigger) {
+      self.rawValue = rawValue
 
-  init(rawValue: UNTimeIntervalNotificationTrigger) {
-    self.rawValue = rawValue
+      self.repeats = rawValue.repeats
+      self.timeInterval = rawValue.timeInterval
+      self.nextTriggerDate = rawValue.nextTriggerDate
+    }
 
-    self.repeats = rawValue.repeats
-    self.timeInterval = rawValue.timeInterval
-    self.nextTriggerDate = rawValue.nextTriggerDate
-  }
+    public init(repeats: Bool, timeInterval: Foundation.TimeInterval, nextTriggerDate: @escaping () -> Date?) {
+      self.rawValue = nil
 
-  public init(repeats: Bool, timeInterval: TimeInterval, nextTriggerDate: @escaping () -> Date?) {
-    self.rawValue = nil
+      self.repeats = repeats
+      self.timeInterval = timeInterval
+      self.nextTriggerDate = nextTriggerDate
+    }
 
-    self.repeats = repeats
-    self.timeInterval = timeInterval
-    self.nextTriggerDate = nextTriggerDate
-  }
-
-  public static func == (lhs: TimeIntervalNotificationTrigger, rhs: TimeIntervalNotificationTrigger) -> Bool {
-    lhs.repeats == rhs.repeats && lhs.timeInterval == rhs.timeInterval
-  }
-}
-
-public struct CalendarNotificationTrigger: NotificationTrigger {
-  public let rawValue: UNCalendarNotificationTrigger?
-
-  public var repeats: Bool
-  public var dateComponents: DateComponents
-  public var nextTriggerDate: () -> Date?
-
-  public init(rawValue: UNCalendarNotificationTrigger) {
-    self.rawValue = rawValue
-
-    self.repeats = rawValue.repeats
-    self.dateComponents = rawValue.dateComponents
-    self.nextTriggerDate = rawValue.nextTriggerDate
+    public static func == (lhs: TimeInterval, rhs: TimeInterval) -> Bool {
+      lhs.rawValue == rhs.rawValue
+    }
   }
 
-  public init(repeats: Bool, dateComponents: DateComponents, nextTriggerDate: @escaping () -> Date?) {
-    self.rawValue = nil
+  public struct Calendar: Equatable {
+    public let rawValue: UNCalendarNotificationTrigger?
 
-    self.repeats = repeats
-    self.dateComponents = dateComponents
-    self.nextTriggerDate = nextTriggerDate
+    public var repeats: Bool
+    public var dateComponents: DateComponents
+    public var nextTriggerDate: () -> Date?
+
+    public init(rawValue: UNCalendarNotificationTrigger) {
+      self.rawValue = rawValue
+
+      self.repeats = rawValue.repeats
+      self.dateComponents = rawValue.dateComponents
+      self.nextTriggerDate = rawValue.nextTriggerDate
+    }
+
+    public init(repeats: Bool, dateComponents: DateComponents, nextTriggerDate: @escaping () -> Date?) {
+      self.rawValue = nil
+
+      self.repeats = repeats
+      self.dateComponents = dateComponents
+      self.nextTriggerDate = nextTriggerDate
+    }
+
+    public static func == (lhs: Calendar, rhs: Calendar) -> Bool {
+      lhs.rawValue == rhs.rawValue
+    }
   }
 
-  public static func == (lhs: CalendarNotificationTrigger, rhs: CalendarNotificationTrigger) -> Bool {
-    lhs.repeats == rhs.repeats && lhs.dateComponents == rhs.dateComponents
-  }
-}
+  @available(macOS, unavailable)
+  @available(tvOS, unavailable)
+  public struct Location: Equatable {
+    public let rawValue: UNLocationNotificationTrigger?
 
-@available(macOS, unavailable)
-@available(tvOS, unavailable)
-public struct LocationNotificationTrigger: NotificationTrigger {
-  public let rawValue: UNLocationNotificationTrigger?
+    public var repeats: Bool
+    public var region: Region
 
-  public var repeats: Bool
-  public var region: Region
+    public init(rawValue: UNLocationNotificationTrigger) {
+      self.rawValue = rawValue
 
-  public init(rawValue: UNLocationNotificationTrigger) {
-    self.rawValue = rawValue
+      self.repeats = rawValue.repeats
+      self.region = Region(rawValue: rawValue.region)
+    }
 
-    self.repeats = rawValue.repeats
-    self.region = Region(rawValue: rawValue.region)
-  }
+    public init(repeats: Bool, region: Region) {
+      self.rawValue = nil
 
-  public init(repeats: Bool, region: Region) {
-    self.rawValue = nil
-
-    self.repeats = repeats
-    self.region = region
-  }
-}
-
-@available(tvOS, unavailable)
-public protocol NotificationResponseType {
-  var actionIdentifier: String  { get }
-  var notification: Notification { get }
-}
-
-@available(tvOS, unavailable)
-public struct NotificationResponse: NotificationResponseType {
-  public let rawValue: UNNotificationResponse?
-
-  public var actionIdentifier: String
-  public var notification: Notification
-
-  public init(rawValue: UNNotificationResponse) {
-    self.rawValue = rawValue
-    self.actionIdentifier = rawValue.actionIdentifier
-    self.notification = Notification(rawValue: rawValue.notification)
-  }
-
-  public init(actionIdentifier: String, notification: Notification) {
-    self.rawValue = nil
-
-    self.actionIdentifier = actionIdentifier
-    self.notification = notification
+      self.repeats = repeats
+      self.region = region
+    }
   }
 }
+
 
 @available(tvOS, unavailable)
-public struct TextInputNotificationResponse: NotificationResponseType {
-  public let rawValue: UNTextInputNotificationResponse?
+public enum Response: Equatable {
+  case user(UserAction)
+  case textInput(TextInputAction)
+}
 
-  public var actionIdentifier: String
-  public var notification: Notification
-  public var userText: String
+extension Response {
+  @available(tvOS, unavailable)
+  public struct UserAction: Equatable {
+    public let rawValue: UNNotificationResponse?
+
+    public var actionIdentifier: String
+    public var notification: Notification
+
+    public init(rawValue: UNNotificationResponse) {
+      self.rawValue = rawValue
+      self.actionIdentifier = rawValue.actionIdentifier
+      self.notification = Notification(rawValue: rawValue.notification)
+    }
+
+    public init(actionIdentifier: String, notification: Notification) {
+      self.rawValue = nil
+
+      self.actionIdentifier = actionIdentifier
+      self.notification = notification
+    }
+  }
 
   @available(tvOS, unavailable)
-  public init(rawValue: UNTextInputNotificationResponse) {
-    self.rawValue = rawValue
-    self.actionIdentifier = rawValue.actionIdentifier
-    self.notification = Notification(rawValue: rawValue.notification)
-    self.userText = rawValue.userText
-  }
+  public struct TextInputAction: Equatable {
+    public let rawValue: UNTextInputNotificationResponse?
 
-  @available(tvOS, unavailable)
-  public init(actionIdentifier: String, notification: Notification, userText: String) {
-    self.rawValue = nil
+    public var actionIdentifier: String
+    public var notification: Notification
+    public var userText: String
 
-    self.actionIdentifier = actionIdentifier
-    self.notification = notification
-    self.userText = userText
+    @available(tvOS, unavailable)
+    public init(rawValue: UNTextInputNotificationResponse) {
+      self.rawValue = rawValue
+      self.actionIdentifier = rawValue.actionIdentifier
+      self.notification = Notification(rawValue: rawValue.notification)
+      self.userText = rawValue.userText
+    }
+
+    @available(tvOS, unavailable)
+    public init(actionIdentifier: String, notification: Notification, userText: String) {
+      self.rawValue = nil
+
+      self.actionIdentifier = actionIdentifier
+      self.notification = notification
+      self.userText = userText
+    }
   }
 }
 
