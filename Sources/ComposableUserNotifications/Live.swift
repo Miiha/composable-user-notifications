@@ -33,7 +33,7 @@ extension UserNotificationClient {
     client.getNotificationSettings = {
       Effect.future { callback in
         center.getNotificationSettings { settings in
-          callback(.success(NotificationSettings(rawValue: settings)))
+          callback(.success(Notification.Settings(rawValue: settings)))
         }
       }.eraseToEffect()
     }
@@ -51,7 +51,7 @@ extension UserNotificationClient {
     client.getPendingNotificationRequests = {
       Effect.future { callback in
         center.getPendingNotificationRequests { requests in
-          callback(.success(requests.map(NotificationRequest.init(rawValue:))))
+          callback(.success(requests.map(Notification.Request.init(rawValue:))))
         }
       }
     }
@@ -148,12 +148,12 @@ private extension UserNotificationClient {
                                 didReceive response: UNNotificationResponse,
                                 withCompletionHandler completionHandler: @escaping () -> Void) {
 
-      let mappedResponse: Response = {
+      let mappedResponse: Notification.Response = {
         switch response {
         case let response as UNTextInputNotificationResponse:
-          return Response.textInput(Response.TextInputAction(rawValue: response))
+          return .textInput(Notification.Response.TextInputAction(rawValue: response))
         default:
-          return Response.user(Response.UserAction(rawValue: response))
+          return .user(Notification.Response.UserAction(rawValue: response))
         }
       }()
       subscriber.send(.didReceiveResponse(mappedResponse, completion: completionHandler))

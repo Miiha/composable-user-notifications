@@ -14,10 +14,10 @@ extension UserNotificationClient {
     getNotificationCategories: @escaping () -> Effect<Set<UNNotificationCategory>, Never> = {
       _unimplemented("getNotificationCategories")
     },
-    getNotificationSettings: @escaping () -> Effect<NotificationSettings, Never> = {
+    getNotificationSettings: @escaping () -> Effect<Notification.Settings, Never> = {
       _unimplemented("getNotificationSettings")
     },
-    getPendingNotificationRequests: @escaping () -> Effect<[NotificationRequest], Never> = {
+    getPendingNotificationRequests: @escaping () -> Effect<[Notification.Request], Never> = {
       _unimplemented("getPendingNotificationRequests")
     },
     removeAllDeliveredNotifications: @escaping () -> Effect<Never, Never> = {
@@ -70,10 +70,10 @@ extension UserNotificationClient {
     add: @escaping (UNNotificationRequest) -> Effect<Void, Error> = { _ in
       _unimplemented("add")
     },
-    getNotificationSettings: @escaping () -> Effect<NotificationSettings, Never> = {
+    getNotificationSettings: @escaping () -> Effect<Notification.Settings, Never> = {
       _unimplemented("getNotificationSettings")
     },
-    getPendingNotificationRequests: @escaping () -> Effect<[NotificationRequest], Never> = {
+    getPendingNotificationRequests: @escaping () -> Effect<[Notification.Request], Never> = {
       _unimplemented("getPendingNotificationRequests")
     },
     removeAllPendingNotificationRequests: @escaping () -> Effect<Never, Never> = {

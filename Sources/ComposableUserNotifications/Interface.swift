@@ -19,7 +19,7 @@ public struct UserNotificationClient {
           completion: (UNNotificationPresentationOptions) -> Void)
 
     @available(tvOS, unavailable)
-    case didReceiveResponse(_ response: Response, completion: () -> Void)
+    case didReceiveResponse(_ response: Notification.Response, completion: () -> Void)
 
     case openSettingsForNotification(_ notification: Notification?)
   }
@@ -38,11 +38,11 @@ public struct UserNotificationClient {
     _unimplemented("getNotificationCategories")
   }
 
-  public var getNotificationSettings: () -> Effect<NotificationSettings, Never> = {
+  public var getNotificationSettings: () -> Effect<Notification.Settings, Never> = {
     _unimplemented("getNotificationSettings")
   }
 
-  public var getPendingNotificationRequests: () -> Effect<[NotificationRequest], Never> = {
+  public var getPendingNotificationRequests: () -> Effect<[Notification.Request], Never> = {
     _unimplemented("getPendingNotificationRequests")
   }
 
