@@ -47,21 +47,21 @@ public struct UserNotificationClient {
   }
 
   @available(tvOS, unavailable)
-  public var removeAllDeliveredNotifications: () -> Void = {
+  public var removeAllDeliveredNotifications: () -> Effect<Never, Never> = {
     _unimplemented("removeAllDeliveredNotifications")
   }
 
-  public var removeAllPendingNotificationRequests: () -> Void = {
+  public var removeAllPendingNotificationRequests: () -> Effect<Never, Never> = {
     _unimplemented("removeAllPendingNotificationRequests")
   }
 
   @available(tvOS, unavailable)
-  public var removeDeliveredNotifications: ([String]) -> Void = { _ in
-    _unimplemented("removeDeliveredNotifications")
+  public var removeDeliveredNotificationsWithIdentifiers: ([String]) -> Effect<Never, Never> = { _ in
+    _unimplemented("removeDeliveredNotificationsWithIdentifiers")
   }
 
-  public var removePendingNotificationRequests: ([String]) -> Void = { _ in
-    _unimplemented("removePendingNotificationRequests")
+  public var removePendingNotificationRequestsWithIdentifiers: ([String]) -> Effect<Never, Never> = { _ in
+    _unimplemented("removePendingNotificationRequestsWithIdentifiers")
   }
 
   public var requestAuthorization: (UNAuthorizationOptions) -> Effect<Bool, NSError> = { _ in
@@ -69,7 +69,7 @@ public struct UserNotificationClient {
   }
 
   @available(tvOS, unavailable)
-  public var setNotificationCategories: (Set<UNNotificationCategory>) -> Void = { _ in
+  public var setNotificationCategories: (Set<UNNotificationCategory>) -> Effect<Never, Never> = { _ in
     _unimplemented("setNotificationCategories")
   }
 
@@ -82,47 +82,5 @@ public struct UserNotificationClient {
   /// by multiple observers might lead to unexpected behaviour.
   public var delegate: () -> Effect<Action, Never> = {
     _unimplemented("delegate")
-  }
-}
-
-public struct Notification {
-  public let rawValue: UNNotification?
-
-  public var date: Date
-  public var request: NotificationRequest
-
-  public init(rawValue: UNNotification) {
-    self.rawValue = rawValue
-    self.date = rawValue.date
-    self.request = NotificationRequest(rawValue: rawValue.request)
-  }
-}
-
-public struct NotificationRequest {
-  public let rawValue: UNNotificationRequest?
-
-  public var identifier: String
-  public var content: NotificationContent
-  public var trigger: NotificationTrigger?
-
-  public init(rawValue: UNNotificationRequest) {
-    self.rawValue = rawValue
-    self.identifier = rawValue.identifier
-    self.content = NotificationContent(rawValue: rawValue.content)
-
-    self.trigger = {
-      switch rawValue.trigger {
-      case let trigger as UNPushNotificationTrigger:
-        return PushNotificationTrigger(rawValue: trigger)
-      case let trigger as UNCalendarNotificationTrigger:
-        return CalendarNotificationTrigger(rawValue: trigger)
-      #if os(iOS) || os(watchOS)
-      case let trigger as UNLocationNotificationTrigger:
-        return LocationNotificationTrigger(rawValue: trigger)
-      #endif
-      default:
-        return nil
-      }
-    }()
   }
 }

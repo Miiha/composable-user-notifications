@@ -1,6 +1,64 @@
 import UserNotifications
 import CoreLocation
 
+public struct Notification {
+  public let rawValue: UNNotification?
+
+  public var date: Date
+  public var request: NotificationRequest
+
+  public init(rawValue: UNNotification) {
+    self.rawValue = rawValue
+
+    self.date = rawValue.date
+    self.request = NotificationRequest(rawValue: rawValue.request)
+  }
+
+  public init(date: Date, request: NotificationRequest) {
+    self.rawValue = nil
+
+    self.date = date
+    self.request = request
+  }
+}
+
+public struct NotificationRequest {
+  public let rawValue: UNNotificationRequest?
+
+  public var identifier: String
+  public var content: NotificationContent
+  public var trigger: NotificationTrigger?
+
+  public init(rawValue: UNNotificationRequest) {
+    self.rawValue = rawValue
+
+    self.identifier = rawValue.identifier
+    self.content = NotificationContent(rawValue: rawValue.content)
+
+    self.trigger = {
+      switch rawValue.trigger {
+      case let trigger as UNPushNotificationTrigger:
+        return PushNotificationTrigger(rawValue: trigger)
+      case let trigger as UNCalendarNotificationTrigger:
+        return CalendarNotificationTrigger(rawValue: trigger)
+      #if os(iOS) || os(watchOS)
+      case let trigger as UNLocationNotificationTrigger:
+        return LocationNotificationTrigger(rawValue: trigger)
+      #endif
+      default:
+        return nil
+      }
+    }()
+  }
+
+  public init(identifier: String, content: NotificationContent) {
+    self.rawValue = nil
+
+    self.identifier = identifier
+    self.content = content
+  }
+}
+
 public struct NotificationContent {
   public var rawValue: () -> UNNotificationContent? = {
     _unimplemented("rawValue")

@@ -20,22 +20,22 @@ extension UserNotificationClient {
     getPendingNotificationRequests: @escaping () -> Effect<[NotificationRequest], Never> = {
       _unimplemented("getPendingNotificationRequests")
     },
-    removeAllDeliveredNotifications: @escaping () -> Void = {
+    removeAllDeliveredNotifications: @escaping () -> Effect<Never, Never> = {
       _unimplemented("removeAllDeliveredNotifications")
     },
-    removeAllPendingNotificationRequests: @escaping () -> Void = {
+    removeAllPendingNotificationRequests: @escaping () -> Effect<Never, Never> = {
       _unimplemented("removeAllPendingNotificationRequests")
     },
-    removeDeliveredNotifications: @escaping ([String]) -> Void = { _ in
-      _unimplemented("removeDeliveredNotifications")
+    removeDeliveredNotificationsWithIdentifiers: @escaping ([String]) -> Effect<Never, Never> = { _ in
+      _unimplemented("removeDeliveredNotificationsWithIdentifiers")
     },
-    removePendingNotificationRequests: @escaping ([String]) -> Void = { _ in
-      _unimplemented("removePendingNotificationRequests")
+    removePendingNotificationRequestsWithIdentifiers: @escaping ([String]) -> Effect<Never, Never> = { _ in
+      _unimplemented("removePendingNotificationRequestsWithIdentifiers")
     },
     requestAuthorization: @escaping (UNAuthorizationOptions) -> Effect<Bool, NSError> = { _ in
       _unimplemented("requestAuthorization")
     },
-    setNotificationCategories: @escaping (Set<UNNotificationCategory>) -> Void = { _ in
+    setNotificationCategories: @escaping (Set<UNNotificationCategory>) -> Effect<Never, Never> = { _ in
       _unimplemented("setNotificationCategories")
     },
     supportsContentExtensions: @escaping () -> Bool = {
@@ -53,8 +53,8 @@ extension UserNotificationClient {
       getPendingNotificationRequests: getPendingNotificationRequests,
       removeAllDeliveredNotifications: removeAllDeliveredNotifications,
       removeAllPendingNotificationRequests: removeAllPendingNotificationRequests,
-      removeDeliveredNotifications: removeDeliveredNotifications,
-      removePendingNotificationRequests: removePendingNotificationRequests,
+      removeDeliveredNotificationsWithIdentifiers: removeDeliveredNotificationsWithIdentifiers,
+      removePendingNotificationRequestsWithIdentifiers: removePendingNotificationRequestsWithIdentifiers,
       requestAuthorization: requestAuthorization,
       setNotificationCategories: setNotificationCategories,
       supportsContentExtensions: supportsContentExtensions,
@@ -76,11 +76,11 @@ extension UserNotificationClient {
     getPendingNotificationRequests: @escaping () -> Effect<[NotificationRequest], Never> = {
       _unimplemented("getPendingNotificationRequests")
     },
-    removeAllPendingNotificationRequests: @escaping () -> Void = {
+    removeAllPendingNotificationRequests: @escaping () -> Effect<Never, Never> = {
       _unimplemented("removeAllPendingNotificationRequests")
     },
-    removePendingNotificationRequests: @escaping ([String]) -> Void = { _ in
-      _unimplemented("removePendingNotificationRequests")
+    removePendingNotificationRequestsWithIdentifiers: @escaping ([String]) -> Effect<Never, Never> = { _ in
+      _unimplemented("removePendingNotificationRequestsWithIdentifiers")
     },
     requestAuthorization: @escaping (UNAuthorizationOptions) -> Effect<Bool, NSError> = { _ in
       _unimplemented("requestAuthorization")
@@ -97,7 +97,7 @@ extension UserNotificationClient {
       getNotificationSettings: getNotificationSettings,
       getPendingNotificationRequests: getPendingNotificationRequests,
       removeAllPendingNotificationRequests: removeAllPendingNotificationRequests,
-      removePendingNotificationRequests: removePendingNotificationRequests,
+      removePendingNotificationRequestsWithIdentifiers: removePendingNotificationRequestsWithIdentifiers,
       requestAuthorization: requestAuthorization,
       supportsContentExtensions: supportsContentExtensions,
       delegate: delegate
