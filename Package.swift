@@ -4,7 +4,7 @@
 import PackageDescription
 
 let package = Package(
-  name: "ComposableUserNotifications",
+  name: "composable-user-notifications",
   platforms: [
     .iOS(.v13),
     .macOS(.v10_15),
