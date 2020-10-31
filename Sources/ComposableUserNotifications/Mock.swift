@@ -4,7 +4,7 @@ import UserNotifications
 
 extension UserNotificationClient {
   @available(tvOS, unavailable)
-  static func mock(
+  public static func mock(
     add: @escaping (UNNotificationRequest) -> Effect<Void, Error> = { _ in
       _unimplemented("add")
     },
@@ -66,7 +66,7 @@ extension UserNotificationClient {
   @available(watchOS, unavailable)
   @available(macOS, unavailable)
   @available(macCatalyst, unavailable)
-  static func mock(
+  public static func mock(
     add: @escaping (UNNotificationRequest) -> Effect<Void, Error> = { _ in
       _unimplemented("add")
     },
@@ -105,8 +105,7 @@ extension UserNotificationClient {
   }
 }
 
-// see https://github.com/pointfreeco/swift-composable-architecture/blob/d39022f32b27725c5cdd24febc789f0933fa2329/Sources/ComposableCoreLocation/Mock.swift#L323
-func _unimplemented(
+public func _unimplemented(
   _ function: StaticString, file: StaticString = #file, line: UInt = #line
 ) -> Never {
   fatalError(
