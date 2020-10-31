@@ -58,11 +58,12 @@ extension Notification {
       }()
     }
 
-    public init(identifier: String, content: Content) {
+    public init(identifier: String, content: Content, trigger: Trigger?) {
       self.rawValue = nil
 
       self.identifier = identifier
       self.content = content
+      self.trigger = trigger
     }
 
     public static func == (lhs: Request, rhs: Request) -> Bool {
