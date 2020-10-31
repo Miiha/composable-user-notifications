@@ -84,3 +84,20 @@ public struct UserNotificationClient {
     _unimplemented("delegate")
   }
 }
+
+extension UserNotificationClient.Action: Equatable {
+  public static func == (lhs: UserNotificationClient.Action, rhs: UserNotificationClient.Action) -> Bool {
+    switch (lhs, rhs) {
+    case let (.willPresentNotification(lhs, _), .willPresentNotification(rhs, _)):
+      return lhs == rhs
+    #if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
+    case let (.didReceiveResponse(lhs, _), .didReceiveResponse(rhs, _)):
+      return lhs == rhs
+    #endif
+    case let (.openSettingsForNotification(lhs), .openSettingsForNotification(rhs)):
+      return lhs == rhs
+    default:
+      return false
+    }
+  }
+}
