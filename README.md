@@ -5,7 +5,6 @@ Composable Core Location is library that bridges [the Composable Architecture](h
 * [Example](#example)
 * [Basic usage](#basic-usage)
 * [Installation](#installation)
-* [Help](#help)
 
 ## Example
 Check out the Example demo to see how [ComposableUserNotifications](./Examples/Example) can be used.
@@ -28,7 +27,7 @@ The `UserNotificationClient.Action` holds the actions
 * too process the user's response to a delivered notification `didReceiveResponse(_:completion:)`
 * to display the in-app notification settings `openSettingsForNotification(_:)`
 
-The wrapper around apple's `UNUserNotificationCenter` `UserNotificationClient`,  , should be part of your applications environment.
+The wrapper around apple's `UNUserNotificationCenter` `UserNotificationClient`, should be part of your applications environment.
 ```swift
 struct AppEnvironment {
   var userNotificationClient: UserNotificationClient
@@ -48,7 +47,7 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment> { state, action, e
       .delegate()
       .map(AppAction.userNotification)
 ```
-When subscribing to these action, we need to handle them.
+When subscribing to these actions we can handle them as follows.
 
 ```swift
   case let .userNotification(.willPresentNotification(notification, completion)):
@@ -82,7 +81,6 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment> { state, action, e
 Adding notification requests is also straight forward. It can be done using `UNNotificationRequest` in conjunction with `UserNotificationClient.add(_:)`.
 
 ```swift
-  // ... 
   case .tappedScheduleButton:
     let content = UNMutableNotificationContent()
     content.title = "Example title"
