@@ -13,15 +13,23 @@ import XCTest
 @testable import Example
 
 class ExampleTests: XCTestCase {
-  var environmnet = AppEnvironment(
+  var environment = AppEnvironment(
     remoteClient: RemoteClient(fetchRemoteCount: { Effect(value: 5) }),
-    userNotificationClient: .mock()
+    userNotificationClient: .mock(
+      requestAuthorization: { _ in Effect(value: true) }
+    )
   )
 
   func testApplicationLaunchWithoutNotification() throws {
     let delegateActionSubject = PassthroughSubject<UserNotificationClient.Action, Never>()
     var didSubscribeNotifications = false
-    environmnet.userNotificationClient.delegate = {
+    var didRequestAuthrizationOptions: UNAuthorizationOptions?
+    environment.userNotificationClient.requestAuthorization = { options in
+      didRequestAuthrizationOptions = options
+      return Effect(value: true)
+    }
+
+    environment.userNotificationClient.delegate = {
       didSubscribeNotifications = true
       return delegateActionSubject.eraseToEffect()
     }
@@ -29,9 +37,11 @@ class ExampleTests: XCTestCase {
     TestStore(
       initialState: AppState(count: nil),
       reducer: appReducer,
-      environment: environmnet
+      environment: environment
     ).assert(
       .send(.didFinishLaunching(notification: nil)),
+      .receive(.requestAuthorizationResponse(.success(true))),
+      .do { XCTAssertEqual(didRequestAuthrizationOptions, [.alert, .badge, .sound]) },
       .do { XCTAssertTrue(didSubscribeNotifications) },
       .do { delegateActionSubject.send(completion: .finished) }
     )
@@ -39,16 +49,17 @@ class ExampleTests: XCTestCase {
 
   func testApplicationLaunchWithtNotification() throws {
     let delegateActionSubject = PassthroughSubject<UserNotificationClient.Action, Never>()
-    environmnet.userNotificationClient.delegate = { delegateActionSubject.eraseToEffect() }
+    environment.userNotificationClient.delegate = { delegateActionSubject.eraseToEffect() }
 
     TestStore(
       initialState: AppState(count: nil),
       reducer: appReducer,
-      environment: environmnet
+      environment: environment
     ).assert(
       .send(.didFinishLaunching(notification: .count(5))) {
         $0.count = 5
       },
+      .receive(.requestAuthorizationResponse(.success(true))),
       .do { delegateActionSubject.send(completion: .finished) }
     )
   }
@@ -56,7 +67,7 @@ class ExampleTests: XCTestCase {
 
   func testNotificationPresentationHandling() throws {
     let delegateActionSubject = PassthroughSubject<UserNotificationClient.Action, Never>()
-    environmnet.userNotificationClient.delegate = { delegateActionSubject.eraseToEffect() }
+    environment.userNotificationClient.delegate = { delegateActionSubject.eraseToEffect() }
 
     var presentationOptions: UNNotificationPresentationOptions?
     let completion = { presentationOptions = $0 }
@@ -75,9 +86,10 @@ class ExampleTests: XCTestCase {
     TestStore(
       initialState: AppState(count: nil),
       reducer: appReducer,
-      environment: environmnet
+      environment: environment
     ).assert(
       .send(.didFinishLaunching(notification: nil)),
+      .receive(.requestAuthorizationResponse(.success(true))),
       .do { delegateActionSubject.send(.willPresentNotification(notification, completion: completion)) },
       .receive(.userNotification(.willPresentNotification(notification, completion: completion))),
       .do { XCTAssertEqual(presentationOptions, [.list, .banner, .sound]) },
@@ -87,7 +99,7 @@ class ExampleTests: XCTestCase {
 
   func testReceivedNotification() throws {
     let delegateActionSubject = PassthroughSubject<UserNotificationClient.Action, Never>()
-    environmnet.userNotificationClient.delegate = { delegateActionSubject.eraseToEffect() }
+    environment.userNotificationClient.delegate = { delegateActionSubject.eraseToEffect() }
 
     var didComplete = false
     let completion = { didComplete = true }
@@ -111,9 +123,10 @@ class ExampleTests: XCTestCase {
     TestStore(
       initialState: AppState(count: nil),
       reducer: appReducer,
-      environment: environmnet
+      environment: environment
     ).assert(
       .send(.didFinishLaunching(notification: nil)),
+      .receive(.requestAuthorizationResponse(.success(true))),
       .do { delegateActionSubject.send(.didReceiveResponse(response, completion: completion)) },
       .receive(.userNotification(.didReceiveResponse(response, completion: completion))) {
         $0.count = 5
@@ -125,7 +138,7 @@ class ExampleTests: XCTestCase {
 
   func testReceiveBackgroundNotification() throws {
     let delegateActionSubject = PassthroughSubject<UserNotificationClient.Action, Never>()
-    environmnet.userNotificationClient.delegate = { delegateActionSubject.eraseToEffect() }
+    environment.userNotificationClient.delegate = { delegateActionSubject.eraseToEffect() }
 
     var backgroundFetchResult: UIBackgroundFetchResult?
     let backgroundNotification = BackgroundNotification(
@@ -137,7 +150,7 @@ class ExampleTests: XCTestCase {
     TestStore(
       initialState: AppState(count: nil),
       reducer: appReducer,
-      environment: environmnet
+      environment: environment
     ).assert(
       .send(.didReceiveBackgroundNotification(backgroundNotification)),
       .receive(.remoteCountResponse(.success(5))) {
@@ -150,8 +163,8 @@ class ExampleTests: XCTestCase {
 
   func testReceiveBackgroundNotificationFailure() throws {
     let delegateActionSubject = PassthroughSubject<UserNotificationClient.Action, Never>()
-    environmnet.userNotificationClient.delegate = { delegateActionSubject.eraseToEffect() }
-    environmnet.remoteClient.fetchRemoteCount = { Effect(error: RemoteClient.Error()) }
+    environment.userNotificationClient.delegate = { delegateActionSubject.eraseToEffect() }
+    environment.remoteClient.fetchRemoteCount = { Effect(error: RemoteClient.Error()) }
 
     var backgroundFetchResult: UIBackgroundFetchResult?
     let backgroundNotification = BackgroundNotification(
@@ -163,7 +176,7 @@ class ExampleTests: XCTestCase {
     TestStore(
       initialState: AppState(count: nil),
       reducer: appReducer,
-      environment: environmnet
+      environment: environment
     ).assert(
       .send(.didReceiveBackgroundNotification(backgroundNotification)),
       .receive(.remoteCountResponse(.failure(RemoteClient.Error()))),
@@ -174,7 +187,7 @@ class ExampleTests: XCTestCase {
 
   func testReceiveBackgroundNotificationWithoutContent() throws {
     let delegateActionSubject = PassthroughSubject<UserNotificationClient.Action, Never>()
-    environmnet.userNotificationClient.delegate = { delegateActionSubject.eraseToEffect() }
+    environment.userNotificationClient.delegate = { delegateActionSubject.eraseToEffect() }
 
     var backgroundFetchResult: UIBackgroundFetchResult?
     let backgroundNotification = BackgroundNotification(
@@ -186,11 +199,40 @@ class ExampleTests: XCTestCase {
     TestStore(
       initialState: AppState(count: nil),
       reducer: appReducer,
-      environment: environmnet
+      environment: environment
     ).assert(
       .send(.didReceiveBackgroundNotification(backgroundNotification)),
       .do { XCTAssertEqual(backgroundFetchResult, .noData) },
       .do { delegateActionSubject.send(completion: .finished) }
+    )
+  }
+
+  func testTappedScheduleButton() throws {
+    var notificationRequest: UNNotificationRequest?
+    environment.userNotificationClient.add = { request in
+      notificationRequest = request
+      return Effect(value: ())
+    }
+    var removedPendingIdentifiers: [String]?
+    environment.userNotificationClient.removePendingNotificationRequestsWithIdentifiers = { identifiers in
+      removedPendingIdentifiers = identifiers
+      return .fireAndForget {}
+    }
+
+    TestStore(
+      initialState: AppState(count: nil),
+      reducer: appReducer,
+      environment: environment
+    ).assert(
+      .send(.tappedScheduleButton),
+      .receive(.addNotificationResponse(.success(Unit()))),
+      .do { XCTAssertEqual(removedPendingIdentifiers, ["example_notification"]) },
+      .do { XCTAssertEqual(notificationRequest?.content.title, "Example title") },
+      .do { XCTAssertEqual(notificationRequest?.content.body, "Example body") },
+      .do { XCTAssertTrue(notificationRequest?.trigger is UNTimeIntervalNotificationTrigger) },
+      .do { XCTAssertEqual(
+        (notificationRequest?.trigger as? UNTimeIntervalNotificationTrigger)?.timeInterval, 5
+      )}
     )
   }
 }

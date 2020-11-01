@@ -15,9 +15,12 @@ struct AppState: Equatable {
 }
 
 enum AppAction: Equatable {
+  case addNotificationResponse(Result<Unit, UserNotificationClient.Error>)
   case didFinishLaunching(notification: UserNotification?)
   case didReceiveBackgroundNotification(BackgroundNotification)
   case remoteCountResponse(Result<Int, RemoteClient.Error>)
+  case requestAuthorizationResponse(Result<Bool, UserNotificationClient.Error>)
+  case tappedScheduleButton
   case userNotification(UserNotificationClient.Action)
 }
 
@@ -33,9 +36,14 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment> { state, action, e
       state.count = value
     }
 
-    return environment.userNotificationClient
-      .delegate()
-      .map(AppAction.userNotification)
+    return .merge(
+      environment.userNotificationClient
+        .delegate()
+        .map(AppAction.userNotification),
+      environment.userNotificationClient.requestAuthorization([.alert, .badge, .sound])
+        .catchToEffect()
+        .map(AppAction.requestAuthorizationResponse)
+      )
 
   case let .didReceiveBackgroundNotification(backgroundNotification):
     let fetchCompletionHandler = backgroundNotification.fetchCompletionHandler
@@ -82,6 +90,31 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment> { state, action, e
 
   case .userNotification(.openSettingsForNotification):
     return .none
+
+  case .requestAuthorizationResponse:
+    return .none
+
+  case .addNotificationResponse:
+    return .none
+
+  case .tappedScheduleButton:
+    let content = UNMutableNotificationContent()
+    content.title = "Example title"
+    content.body = "Example body"
+
+    let request = UNNotificationRequest(
+      identifier: "example_notification",
+      content: content,
+      trigger: UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
+    )
+
+    return .concatenate(
+      environment.userNotificationClient.removePendingNotificationRequestsWithIdentifiers(["example_notification"])
+        .map(absurd),
+      environment.userNotificationClient.add(request)
+        .map(Unit.init)
+        .catchToEffect()
+        .map(AppAction.addNotificationResponse)
+    )
   }
 }
-

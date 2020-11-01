@@ -14,8 +14,13 @@ struct ContentView: View {
 
   var body: some View {
     WithViewStore(self.store) { viewStore in
-      Text("Count: \(viewStore.count ?? 0)")
-        .padding()
+      VStack {
+        Text("Count: \(viewStore.count ?? 0)")
+          .padding()
+        Button("Schedule notification") {
+          viewStore.send(.tappedScheduleButton)
+        }
+      }
     }
   }
 }
