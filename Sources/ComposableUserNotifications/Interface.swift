@@ -64,7 +64,7 @@ public struct UserNotificationClient {
     _unimplemented("removePendingNotificationRequestsWithIdentifiers")
   }
 
-  public var requestAuthorization: (UNAuthorizationOptions) -> Effect<Bool, NSError> = { _ in
+  public var requestAuthorization: (UNAuthorizationOptions) -> Effect<Bool, Error> = { _ in
     _unimplemented("requestAuthorization")
   }
 
@@ -82,6 +82,14 @@ public struct UserNotificationClient {
   /// by multiple observers might lead to unexpected behaviour.
   public var delegate: () -> Effect<Action, Never> = {
     _unimplemented("delegate")
+  }
+
+  public struct Error: Swift.Error, Equatable {
+    public let error: NSError
+
+    public init(_ error: Swift.Error) {
+      self.error = error as NSError
+    }
   }
 }
 

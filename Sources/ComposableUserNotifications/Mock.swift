@@ -32,7 +32,7 @@ extension UserNotificationClient {
     removePendingNotificationRequestsWithIdentifiers: @escaping ([String]) -> Effect<Never, Never> = { _ in
       _unimplemented("removePendingNotificationRequestsWithIdentifiers")
     },
-    requestAuthorization: @escaping (UNAuthorizationOptions) -> Effect<Bool, NSError> = { _ in
+    requestAuthorization: @escaping (UNAuthorizationOptions) -> Effect<Bool, Error> = { _ in
       _unimplemented("requestAuthorization")
     },
     setNotificationCategories: @escaping (Set<UNNotificationCategory>) -> Effect<Never, Never> = { _ in
@@ -82,7 +82,7 @@ extension UserNotificationClient {
     removePendingNotificationRequestsWithIdentifiers: @escaping ([String]) -> Effect<Never, Never> = { _ in
       _unimplemented("removePendingNotificationRequestsWithIdentifiers")
     },
-    requestAuthorization: @escaping (UNAuthorizationOptions) -> Effect<Bool, NSError> = { _ in
+    requestAuthorization: @escaping (UNAuthorizationOptions) -> Effect<Bool, Error> = { _ in
       _unimplemented("requestAuthorization")
     },
     supportsContentExtensions: @escaping () -> Bool = {

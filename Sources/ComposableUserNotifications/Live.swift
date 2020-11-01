@@ -12,7 +12,7 @@ extension UserNotificationClient {
       .future { callback in
         center.add(request) { error in
           if let error = error {
-            callback(.failure(error))
+            callback(.failure(Error(error)))
           } else {
             callback(.success(()))
           }
@@ -88,7 +88,7 @@ extension UserNotificationClient {
       .future { callback in
         center.requestAuthorization(options: options) { (granted, error) in
           if let error = error {
-            callback(.failure(error as NSError))
+            callback(.failure(Error(error)))
           } else {
             callback(.success(granted))
           }
