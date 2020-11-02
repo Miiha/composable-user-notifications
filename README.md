@@ -1,6 +1,6 @@
 # Composable User Notifications
 
-Composable Core Location is library that bridges [the Composable Architecture](https://github.com/pointfreeco/swift-composable-architecture) and [User Notifications](https://developer.apple.com/documentation/usernotifications).
+Composable User Notifications is library that bridges [the Composable Architecture](https://github.com/pointfreeco/swift-composable-architecture) and [User Notifications](https://developer.apple.com/documentation/usernotifications).
 
 * [Example](#example)
 * [Basic usage](#basic-usage)
