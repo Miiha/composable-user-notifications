@@ -148,15 +148,8 @@ private extension UserNotificationClient {
                                 didReceive response: UNNotificationResponse,
                                 withCompletionHandler completionHandler: @escaping () -> Void) {
 
-      let mappedResponse: Notification.Response = {
-        switch response {
-        case let response as UNTextInputNotificationResponse:
-          return .textInput(Notification.Response.TextInputAction(rawValue: response))
-        default:
-          return .user(Notification.Response.UserAction(rawValue: response))
-        }
-      }()
-      subscriber.send(.didReceiveResponse(mappedResponse, completion: completionHandler))
+      let wrappedResponse = Notification.Response(rawValue: response)
+      subscriber.send(.didReceiveResponse(wrappedResponse, completion: completionHandler))
     }
     #endif
 

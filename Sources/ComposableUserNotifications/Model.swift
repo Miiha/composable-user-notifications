@@ -405,6 +405,14 @@ extension Notification.Response {
 
 @available(tvOS, unavailable)
 extension Notification.Response {
+  public init(rawValue: UNNotificationResponse) {
+    switch rawValue {
+    case let rawValue as UNTextInputNotificationResponse:
+      self = .textInput(Notification.Response.TextInputAction(rawValue: rawValue))
+    default:
+      self = .user(Notification.Response.UserAction(rawValue: rawValue))
+    }
+  }
 
   public struct UserAction: Equatable {
     public let rawValue: UNNotificationResponse?
