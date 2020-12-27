@@ -14,6 +14,3 @@ extension Unit {
   init(_ void: Void) {
   }
 }
-
-public func absurd<A>(_ never: Never) -> A {
-}

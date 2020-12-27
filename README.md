@@ -94,7 +94,7 @@ Adding notification requests is also straight forward. It can be done using `UNN
 
     return .concatenate(
       environment.userNotificationClient.removePendingNotificationRequestsWithIdentifiers(["example_notification"])
-        .map(absurd),
+        .fireAndForget(),
       environment.userNotificationClient.add(request)
         .map(Unit.init)
         .catchToEffect()

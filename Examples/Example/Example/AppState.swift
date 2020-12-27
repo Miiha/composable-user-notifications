@@ -84,9 +84,7 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment> { state, action, e
       state.count = value
     }
 
-    return .fireAndForget {
-      completion()
-    }
+    return .fireAndForget(completion)
 
   case .userNotification(.openSettingsForNotification):
     return .none
@@ -110,7 +108,7 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment> { state, action, e
 
     return .concatenate(
       environment.userNotificationClient.removePendingNotificationRequestsWithIdentifiers(["example_notification"])
-        .map(absurd),
+        .fireAndForget(),
       environment.userNotificationClient.add(request)
         .map(Unit.init)
         .catchToEffect()
