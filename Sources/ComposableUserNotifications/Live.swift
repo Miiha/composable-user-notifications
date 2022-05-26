@@ -96,7 +96,7 @@ extension UserNotificationClient {
       }
     }
 
-    #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+    #if os(iOS) || os(macOS) || os(watchOS)  || targetEnvironment(macCatalyst)
     client.setNotificationCategories = { categories in
       .fireAndForget {
         center.setNotificationCategories(categories)
