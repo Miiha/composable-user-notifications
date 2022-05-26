@@ -20,7 +20,7 @@ extension UserNotificationClient {
       }
     }
 
-    #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+    #if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
     client.getDeliveredNotifications = {
       .future { callback in
         center.getDeliveredNotifications { notifications in
@@ -38,7 +38,7 @@ extension UserNotificationClient {
       }.eraseToEffect()
     }
 
-    #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+    #if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
     client.getNotificationCategories = {
       Effect.future { callback in
         center.getNotificationCategories { categories in
@@ -56,7 +56,7 @@ extension UserNotificationClient {
       }
     }
 
-    #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+    #if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
     client.removeAllDeliveredNotifications = {
       .fireAndForget {
         center.removeAllDeliveredNotifications()
@@ -70,7 +70,7 @@ extension UserNotificationClient {
       }
     }
 
-    #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+    #if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
     client.removeDeliveredNotificationsWithIdentifiers = { identifiers in
       .fireAndForget {
         center.removeDeliveredNotifications(withIdentifiers: identifiers)
