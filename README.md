@@ -10,7 +10,7 @@ Composable User Notifications is library that bridges [the Composable Architectu
 Check out the Example demo to see how [ComposableUserNotifications](./Examples/Example) can be used.
 
 ## Basic usage
-To hanlde incomming user notification you can observe the `UNUserNotificationCenterDelegate` actions `UserNotificationClient.Action` of the `UserNotificationClient.delegate` effect.
+To handle incoming user notification you can observe the `UNUserNotificationCenterDelegate` actions `UserNotificationClient.Action` of the `UserNotificationClient.delegate` effect.
 
 ```swift
 import ComposableUserNotifications
@@ -24,7 +24,7 @@ enum AppAction {
 ```
 The `UserNotificationClient.Action` holds the actions
 * for handling foreground notifications `willPresentNotification(_:completion)`
-* too process the user's response to a delivered notification `didReceiveResponse(_:completion:)`
+* to process the user's response to a delivered notification `didReceiveResponse(_:completion:)`
 * to display the in-app notification settings `openSettingsForNotification(_:)`
 
 The wrapper around apple's `UNUserNotificationCenter` `UserNotificationClient`, should be part of your applications environment.
