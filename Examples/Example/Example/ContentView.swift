@@ -10,7 +10,7 @@ import ComposableUserNotifications
 import SwiftUI
 
 struct ContentView: View {
-  let store: Store<AppState, AppAction>
+  let store: StoreOf<App>
 
   var body: some View {
     WithViewStore(self.store) { viewStore in
@@ -30,12 +30,10 @@ struct ContentView_Previews: PreviewProvider {
   static var previews: some View {
     ContentView(
       store: Store(
-        initialState: AppState(),
-        reducer: .empty,
-        environment: AppEnvironment(
-          remoteClient: RemoteClient(fetchRemoteCount: { Effect(value: 1) }),
-          userNotificationClient: .mock()
-        )
+        initialState: .init(),
+        reducer: App()
+          .dependency(\.userNotifications, .previewValue)
+          .dependency(\.remote, .previewValue)
       )
     )
   }

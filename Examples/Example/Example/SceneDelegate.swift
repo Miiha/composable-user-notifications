@@ -11,12 +11,11 @@ import UIKit
 import Combine
 
 private let store = Store(
-  initialState: AppState(),
-  reducer: appReducer,
-  environment: AppEnvironment(
-    remoteClient: .randomDelayed,
-    userNotificationClient: .live
-  )
+  initialState: App.State(),
+  reducer: App().transformDependency(\.self) {
+    $0.remote = .liveValue
+    $0.userNotifications = .liveValue
+  }
 )
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
@@ -62,9 +61,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 extension RemoteClient {
   static let randomDelayed = RemoteClient(
     fetchRemoteCount: {
-      Effect(value: Int.random(in: 0...10))
-        .delay(for: 2, scheduler: DispatchQueue.main)
-        .eraseToEffect()
+      try await Task.sleep(nanoseconds: NSEC_PER_SEC * 2)
+      return Int.random(in: 0...10)
     }
   )
 }
