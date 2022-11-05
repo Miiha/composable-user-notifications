@@ -460,7 +460,7 @@ extension Notification.Response {
 }
 
 extension Notification {
-  public struct Settings {
+  public struct Settings: Equatable {
     public var rawValue: () -> UNNotificationSettings? = {
       _unimplemented("rawValue")
     }
@@ -575,6 +575,10 @@ extension Notification {
       #if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
       self.soundSetting = { rawValue.soundSetting }
       #endif
+    }
+
+    public static func == (lhs: Notification.Settings, rhs: Notification.Settings) -> Bool {
+      lhs.rawValue() == rhs.rawValue()
     }
   }
 }
