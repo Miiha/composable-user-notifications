@@ -55,8 +55,8 @@ extension UserNotificationClient: TestDependencyKey {
 #endif
 }
 
-#if DEBUG
 extension UserNotificationClient {
+#if os(iOS) || os(macOS) || os(watchOS)  || targetEnvironment(macCatalyst)
   public static let noop = Self(
     add: { _ in },
     deliveredNotifications: { [] },
@@ -72,5 +72,16 @@ extension UserNotificationClient {
     supportsContentExtensions: { false },
     delegate: { AsyncStream { _ in } }
   )
-}
+#else // tvOS
+  public static let noop = Self(
+    add: { _ in },
+    deliveredNotifications: { [] },
+    pendingNotificationRequests: { [] },
+    removeAllPendingNotificationRequests: { },
+    removePendingNotificationRequestsWithIdentifiers: { _ in },
+    requestAuthorization: { _ in false },
+    supportsContentExtensions: { false },
+    delegate: { AsyncStream { _ in } }
+  )
 #endif
+}
