@@ -1,7 +1,6 @@
 import ComposableArchitecture
 import SwiftUI
 import UIKit
-import Combine
 
 private let store = Store(
   initialState: App.State(),
