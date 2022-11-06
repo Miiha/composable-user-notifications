@@ -1,10 +1,3 @@
-//
-//  ExampleTests.swift
-//  ExampleTests
-//
-//  Created by Michael Kao on 31.10.20.
-//
-
 import Combine
 import ComposableArchitecture
 import ComposableUserNotifications

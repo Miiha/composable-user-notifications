@@ -1,10 +1,3 @@
-//
-//  UserNotification.swift
-//  Example
-//
-//  Created by Michael Kao on 31.10.20.
-//
-
 import Foundation
 
 public enum UserNotification: Equatable {

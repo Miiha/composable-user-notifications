@@ -1,10 +1,3 @@
-//
-//  RemoteClient.swift
-//  Example
-//
-//  Created by Michael Kao on 31.10.20.
-//
-
 import Foundation
 import ComposableArchitecture
 import XCTestDynamicOverlay
