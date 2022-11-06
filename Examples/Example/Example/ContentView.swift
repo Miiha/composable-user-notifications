@@ -32,8 +32,6 @@ struct ContentView_Previews: PreviewProvider {
       store: Store(
         initialState: .init(),
         reducer: App()
-          .dependency(\.userNotifications, .previewValue)
-          .dependency(\.remote, .previewValue)
       )
     )
   }
