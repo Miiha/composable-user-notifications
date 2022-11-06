@@ -43,22 +43,22 @@ extension UserNotificationClient: DependencyKey {
     }
 
     #if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
-    client.removeDeliveredNotificationsWithIdentifiers = { identifiers in
-      center.removeDeliveredNotifications(withIdentifiers: identifiers)
+    client.removeDeliveredNotificationsWithIdentifiers = {
+      center.removeDeliveredNotifications(withIdentifiers: $0)
     }
     #endif
 
-    client.removePendingNotificationRequestsWithIdentifiers = { identifiers in
-      center.removePendingNotificationRequests(withIdentifiers: identifiers)
+    client.removePendingNotificationRequestsWithIdentifiers = {
+      center.removePendingNotificationRequests(withIdentifiers: $0)
     }
 
-    client.requestAuthorization = { options in
-      try await center.requestAuthorization(options: options)
+    client.requestAuthorization = {
+      try await center.requestAuthorization(options: $0)
     }
 
     #if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
-    client.setNotificationCategories = { categories in
-      center.setNotificationCategories(categories)
+    client.setNotificationCategories = {
+      center.setNotificationCategories($0)
     }
     #endif
 
@@ -88,11 +88,13 @@ private extension UserNotificationClient {
       self.continuation = continuation
     }
 
-    func userNotificationCenter(_ center: UNUserNotificationCenter,
-                                willPresent notification: UNNotification,
-                                withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-
-      self.continuation.yield(
+    func userNotificationCenter(
+      _ center: UNUserNotificationCenter,
+      willPresent notification: UNNotification,
+      withCompletionHandler completionHandler:
+      @escaping (UNNotificationPresentationOptions) -> Void
+    ) {
+        self.continuation.yield(
         .willPresentNotification(
           Notification(rawValue: notification),
           completionHandler: completionHandler
@@ -101,10 +103,11 @@ private extension UserNotificationClient {
     }
 
     #if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
-    func userNotificationCenter(_ center: UNUserNotificationCenter,
-                                didReceive response: UNNotificationResponse,
-                                withCompletionHandler completionHandler: @escaping () -> Void) {
-
+    func userNotificationCenter(
+      _ center: UNUserNotificationCenter,
+      didReceive response: UNNotificationResponse,
+      withCompletionHandler completionHandler: @escaping () -> Void
+    ) {
       let wrappedResponse = Notification.Response(rawValue: response)
       self.continuation.yield(
         .didReceiveResponse(wrappedResponse) { completionHandler() }
@@ -113,10 +116,10 @@ private extension UserNotificationClient {
     #endif
 
     #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
-    func userNotificationCenter(_ center: UNUserNotificationCenter,
-                                openSettingsFor notification: UNNotification?) {
-
-
+    func userNotificationCenter(
+      _ center: UNUserNotificationCenter,
+      openSettingsFor notification: UNNotification?
+    ) {
       let mappedNotification = notification.map(Notification.init)
       self.continuation.yield(
         .openSettingsForNotification(mappedNotification)
