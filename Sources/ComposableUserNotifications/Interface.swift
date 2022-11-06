@@ -26,40 +26,40 @@ public struct UserNotificationClient {
   }
 
   public var add: @Sendable (UNNotificationRequest) async throws -> Void  =
-    XCTUnimplemented("\(Self.self).add")
+    unimplemented("\(Self.self).add")
 
   @available(tvOS, unavailable)
-  public var deliveredNotifications: @Sendable () async -> [Notification] = XCTUnimplemented("\(Self.self).deliveredNotifications")
+  public var deliveredNotifications: @Sendable () async -> [Notification] = unimplemented("\(Self.self).deliveredNotifications")
 
   @available(tvOS, unavailable)
-  public var notificationCategories: () async -> Set<UNNotificationCategory> = XCTUnimplemented("\(Self.self).deliveredNotifications")
+  public var notificationCategories: () async -> Set<UNNotificationCategory> = unimplemented("\(Self.self).deliveredNotifications")
 
-  public var notificationSettings: () async -> Notification.Settings = XCTUnimplemented("\(Self.self).notificationSettings")
+  public var notificationSettings: () async -> Notification.Settings = unimplemented("\(Self.self).notificationSettings")
 
-  public var pendingNotificationRequests: () async -> [Notification.Request] = XCTUnimplemented("\(Self.self).pendingNotificationRequests")
-
-  @available(tvOS, unavailable)
-  public var removeAllDeliveredNotifications: () async -> Void = XCTUnimplemented("\(Self.self).removeAllDeliveredNotifications")
-
-  public var removeAllPendingNotificationRequests: () async -> Void = XCTUnimplemented("\(Self.self).removeAllPendingNotificationRequests")
+  public var pendingNotificationRequests: () async -> [Notification.Request] = unimplemented("\(Self.self).pendingNotificationRequests")
 
   @available(tvOS, unavailable)
-  public var removeDeliveredNotificationsWithIdentifiers: ([String]) async -> Void = XCTUnimplemented("\(Self.self).removeDeliveredNotificationsWithIdentifiers")
+  public var removeAllDeliveredNotifications: () async -> Void = unimplemented("\(Self.self).removeAllDeliveredNotifications")
 
-  public var removePendingNotificationRequestsWithIdentifiers: ([String]) async -> Void = XCTUnimplemented("\(Self.self).removePendingNotificationRequestsWithIdentifiers")
+  public var removeAllPendingNotificationRequests: () async -> Void = unimplemented("\(Self.self).removeAllPendingNotificationRequests")
+
+  @available(tvOS, unavailable)
+  public var removeDeliveredNotificationsWithIdentifiers: ([String]) async -> Void = unimplemented("\(Self.self).removeDeliveredNotificationsWithIdentifiers")
+
+  public var removePendingNotificationRequestsWithIdentifiers: ([String]) async -> Void = unimplemented("\(Self.self).removePendingNotificationRequestsWithIdentifiers")
 
   public var requestAuthorization: (UNAuthorizationOptions) async throws -> Bool =
-    XCTUnimplemented("\(Self.self).requestAuthorization")
+    unimplemented("\(Self.self).requestAuthorization")
 
   @available(tvOS, unavailable)
-  public var setNotificationCategories: (Set<UNNotificationCategory>) async -> Void = XCTUnimplemented("\(Self.self).setNotificationCategories")
+  public var setNotificationCategories: (Set<UNNotificationCategory>) async -> Void = unimplemented("\(Self.self).setNotificationCategories")
 
-  public var supportsContentExtensions: () -> Bool = XCTUnimplemented("\(Self.self).supportsContentExtensions")
+  public var supportsContentExtensions: () -> Bool = unimplemented("\(Self.self).supportsContentExtensions")
 
   /// This Effect represents calls to the `UNUserNotificationCenterDelegate`.
   /// Handling the completion handlers of the `UNUserNotificationCenterDelegate`s methods
   /// by multiple observers might lead to unexpected behaviour.
-  public var delegate: @Sendable () -> AsyncStream<DeletegateAction> = XCTUnimplemented("\(Self.self).delegate", placeholder: .finished)
+  public var delegate: @Sendable () -> AsyncStream<DeletegateAction> = unimplemented("\(Self.self).delegate", placeholder: .finished)
 }
 
 extension UserNotificationClient.DeletegateAction: Equatable {

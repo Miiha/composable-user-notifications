@@ -32,7 +32,7 @@ extension RemoteClient: TestDependencyKey {
   )
 
   static let testValue = Self(
-    fetchRemoteCount: XCTUnimplemented("\(Self.self).fetchRemoteCount")
+    fetchRemoteCount: unimplemented("\(Self.self).fetchRemoteCount")
   )
 }
 

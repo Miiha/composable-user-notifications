@@ -15,30 +15,42 @@ extension UserNotificationClient: TestDependencyKey {
 
 #if os(iOS) || os(macOS) || os(watchOS)  || targetEnvironment(macCatalyst)
   public static let testValue = Self(
-    add: XCTUnimplemented("\(Self.self).add"),
-    deliveredNotifications: XCTUnimplemented("\(Self.self).deliveredNotifications", placeholder: []),
-    notificationCategories: XCTUnimplemented("\(Self.self).notificationCategories", placeholder: []),
-    notificationSettings: XCTUnimplemented("\(Self.self).notificationSettings"),
-    pendingNotificationRequests: XCTUnimplemented("\(Self.self).pendingNotificationRequests"),
-    removeAllDeliveredNotifications: XCTUnimplemented("\(Self.self).removeAllDeliveredNotifications"),
-    removeAllPendingNotificationRequests: XCTUnimplemented("\(Self.self).removeAllPendingNotificationRequests"),
-    removeDeliveredNotificationsWithIdentifiers: XCTUnimplemented("\(Self.self).removeDeliveredNotificationsWithIdentifiers"),
-    removePendingNotificationRequestsWithIdentifiers: XCTUnimplemented("\(Self.self).removePendingNotificationRequestsWithIdentifiers"),
-    requestAuthorization: XCTUnimplemented("\(Self.self).requestAuthorization"),
-    setNotificationCategories: XCTUnimplemented("\(Self.self).setNotificationCategories"),
-    supportsContentExtensions: XCTUnimplemented("\(Self.self).supportsContentExtensions"),
-    delegate: XCTUnimplemented("\(Self.self).delegate", placeholder: .finished)
+    add: unimplemented("\(Self.self).add"),
+    deliveredNotifications: unimplemented("\(Self.self).deliveredNotifications"),
+    notificationCategories: unimplemented("\(Self.self).notificationCategories", placeholder: []),
+    notificationSettings: unimplemented("\(Self.self).notificationSettings"),
+    pendingNotificationRequests: unimplemented("\(Self.self).pendingNotificationRequests"),
+    removeAllDeliveredNotifications: unimplemented("\(Self.self).removeAllDeliveredNotifications"),
+    removeAllPendingNotificationRequests: unimplemented(
+      "\(Self.self).removeAllPendingNotificationRequests"
+    ),
+    removeDeliveredNotificationsWithIdentifiers: unimplemented(
+      "\(Self.self).removeDeliveredNotificationsWithIdentifiers"
+    ),
+    removePendingNotificationRequestsWithIdentifiers: unimplemented(
+      "\(Self.self).removePendingNotificationRequestsWithIdentifiers"
+    ),
+    requestAuthorization: unimplemented("\(Self.self).requestAuthorization", placeholder: false),
+    setNotificationCategories: unimplemented("\(Self.self).setNotificationCategories"),
+    supportsContentExtensions: unimplemented(
+      "\(Self.self).supportsContentExtensions", placeholder: false
+    ),
+    delegate: unimplemented("\(Self.self).delegate", placeholder: .finished)
   )
 #else // tvOS
   public static let testValue = Self(
-    add: XCTUnimplemented("\(Self.self).add"),
-    deliveredNotifications: XCTUnimplemented("\(Self.self).deliveredNotifications", placeholder: []),
-    pendingNotificationRequests: XCTUnimplemented("\(Self.self).pendingNotificationRequests"),
-    removeAllPendingNotificationRequests: XCTUnimplemented("\(Self.self).removeAllPendingNotificationRequests"),
-    removePendingNotificationRequestsWithIdentifiers: XCTUnimplemented("\(Self.self).removePendingNotificationRequestsWithIdentifiers"),
-    requestAuthorization: XCTUnimplemented("\(Self.self).requestAuthorization"),
-    supportsContentExtensions: XCTUnimplemented("\(Self.self).supportsContentExtensions"),
-    delegate: XCTUnimplemented("\(Self.self).delegate", placeholder: .finished)
+    add: unimplemented("\(Self.self).add"),
+    deliveredNotifications: unimplemented("\(Self.self).deliveredNotifications"),
+    pendingNotificationRequests: unimplemented("\(Self.self).pendingNotificationRequests"),
+    removeAllPendingNotificationRequests: unimplemented(
+      "\(Self.self).removeAllPendingNotificationRequests"
+    ),
+    removePendingNotificationRequestsWithIdentifiers: unimplemented("\(Self.self).removePendingNotificationRequestsWithIdentifiers"),
+    requestAuthorization: unimplemented("\(Self.self).requestAuthorization", placeholder: false),
+    supportsContentExtensions: unimplemented(
+      "\(Self.self).supportsContentExtensions", placeholder: false
+    ),
+    delegate: unimplemented("\(Self.self).delegate", placeholder: .finished)
   )
 #endif
 }
@@ -49,7 +61,7 @@ extension UserNotificationClient {
     add: { _ in },
     deliveredNotifications: { [] },
     notificationCategories: { [] },
-    notificationSettings: { Notification.Settings(rawValue: .init(coder: NSCoder())!) },
+    notificationSettings: unimplemented("\(Self.self).notificationSettings"),
     pendingNotificationRequests: { [] },
     removeAllDeliveredNotifications: { },
     removeAllPendingNotificationRequests: { },
@@ -62,16 +74,3 @@ extension UserNotificationClient {
   )
 }
 #endif
-
-public func _unimplemented(
-  _ function: StaticString, file: StaticString = #file, line: UInt = #line
-) -> Never {
-  fatalError(
-    """
-    `\(function)` was called but is not implemented. Be sure to provide an implementation for
-    this endpoint when creating the mock.
-    """,
-    file: file,
-    line: line
-  )
-}
