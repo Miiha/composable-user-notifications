@@ -2,7 +2,7 @@
 
 Composable User Notifications is library that bridges [the Composable Architecture](https://github.com/pointfreeco/swift-composable-architecture) and [User Notifications](https://developer.apple.com/documentation/usernotifications).
 
-This library is using the [ReducerProtocol](https://pointfreeco.github.io/swift-composable-architecture/main/documentation/composablearchitecture/reducerprotocol/) and models it's dependency using [swift concurrency](https://pointfreeco.github.io/swift-composable-architecture/main/documentation/composablearchitecture/swiftconcurrency) since version 0.3.0.
+This library is modelling it's dependency using [swift concurrency](https://pointfreeco.github.io/swift-composable-architecture/main/documentation/composablearchitecture/swiftconcurrency) since version 0.3.0.
 
 * [Example](#example)
 * [Basic usage](#basic-usage)
