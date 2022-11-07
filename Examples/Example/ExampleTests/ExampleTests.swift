@@ -1,77 +1,70 @@
-//
-//  ExampleTests.swift
-//  ExampleTests
-//
-//  Created by Michael Kao on 31.10.20.
-//
-
-import Combine
 import ComposableArchitecture
 import ComposableUserNotifications
 import struct ComposableUserNotifications.Notification
 import XCTest
 @testable import Example
 
+@MainActor
 class ExampleTests: XCTestCase {
-  var environment = AppEnvironment(
-    remoteClient: RemoteClient(fetchRemoteCount: { Effect(value: 5) }),
-    userNotificationClient: .mock(
-      requestAuthorization: { _ in Effect(value: true) }
+  func testApplicationLaunchWithoutNotification() async throws {
+    let delegate = AsyncStream<UserNotificationClient.DeletegateAction>.streamWithContinuation()
+    let requestedAuthorizationOptions = ActorIsolated<UNAuthorizationOptions?>(nil)
+    let store = TestStore(
+      initialState: App.State(count: nil),
+      reducer: App()
     )
-  )
-
-  func testApplicationLaunchWithoutNotification() throws {
-    let delegateActionSubject = PassthroughSubject<UserNotificationClient.Action, Never>()
-    var didSubscribeNotifications = false
-    var didRequestAuthrizationOptions: UNAuthorizationOptions?
-    environment.userNotificationClient.requestAuthorization = { options in
-      didRequestAuthrizationOptions = options
-      return Effect(value: true)
+    store.dependencies.userNotifications.delegate = { delegate.stream }
+    store.dependencies.userNotifications.requestAuthorization = { options in
+      await requestedAuthorizationOptions.setValue(options)
+      return true
     }
-
-    environment.userNotificationClient.delegate = {
-      didSubscribeNotifications = true
-      return delegateActionSubject.eraseToEffect()
+    let task = await store.send(.didFinishLaunching(notification: nil))
+    await store.receive(.requestAuthorizationResponse(.success(true)))
+    await requestedAuthorizationOptions.withValue {
+      XCTAssertNoDifference($0, [.alert, .badge, .sound])
     }
-
-    TestStore(
-      initialState: AppState(count: nil),
-      reducer: appReducer,
-      environment: environment
-    ).assert(
-      .send(.didFinishLaunching(notification: nil)),
-      .receive(.requestAuthorizationResponse(.success(true))),
-      .do { XCTAssertEqual(didRequestAuthrizationOptions, [.alert, .badge, .sound]) },
-      .do { XCTAssertTrue(didSubscribeNotifications) },
-      .do { delegateActionSubject.send(completion: .finished) }
-    )
+    await task.cancel()
   }
 
-  func testApplicationLaunchWithtNotification() throws {
-    let delegateActionSubject = PassthroughSubject<UserNotificationClient.Action, Never>()
-    environment.userNotificationClient.delegate = { delegateActionSubject.eraseToEffect() }
+  func testApplicationLaunchWithtNotification() async throws {
+    let delegate = AsyncStream<UserNotificationClient.DeletegateAction>.streamWithContinuation()
+    let requestedAuthorizationOptions = ActorIsolated<UNAuthorizationOptions?>(nil)
 
-    TestStore(
-      initialState: AppState(count: nil),
-      reducer: appReducer,
-      environment: environment
-    ).assert(
-      .send(.didFinishLaunching(notification: .count(5))) {
-        $0.count = 5
-      },
-      .receive(.requestAuthorizationResponse(.success(true))),
-      .do { delegateActionSubject.send(completion: .finished) }
+    let store = TestStore(
+      initialState: App.State(count: nil),
+      reducer: App()
     )
+    store.dependencies.userNotifications.delegate = { delegate.stream }
+    store.dependencies.userNotifications.requestAuthorization = { options in
+      await requestedAuthorizationOptions.setValue(options)
+      return true
+    }
+
+    let task = await store.send(.didFinishLaunching(notification: .count(5))) {
+      $0.count = 5
+    }
+    await store.receive(.requestAuthorizationResponse(.success(true)))
+    await requestedAuthorizationOptions.withValue {
+      XCTAssertNoDifference($0, [.alert, .badge, .sound])
+    }
+    await task.cancel()
   }
 
+  func testNotificationPresentationHandling() async throws {
+    let delegate = AsyncStream<UserNotificationClient.DeletegateAction>.streamWithContinuation()
 
-  func testNotificationPresentationHandling() throws {
-    let delegateActionSubject = PassthroughSubject<UserNotificationClient.Action, Never>()
-    environment.userNotificationClient.delegate = { delegateActionSubject.eraseToEffect() }
+    let store = TestStore(
+      initialState: App.State(count: nil),
+      reducer: App()
+    )
+    store.dependencies.userNotifications.requestAuthorization = { _ in true }
+    store.dependencies.userNotifications.delegate = { delegate.stream }
 
-    var presentationOptions: UNNotificationPresentationOptions?
-    let completion = { presentationOptions = $0 }
+    let task = await store.send(.didFinishLaunching(notification: nil))
+    await store.receive(.requestAuthorizationResponse(.success(true)))
 
+    var notificationPresentationOptions: UNNotificationPresentationOptions?
+    let willPresentNotificationCompletionHandler = { notificationPresentationOptions = $0 }
     let content = UNMutableNotificationContent()
     content.userInfo = ["count": 5]
     let notification = Notification(
@@ -83,27 +76,39 @@ class ExampleTests: XCTestCase {
       )
     )
 
-    TestStore(
-      initialState: AppState(count: nil),
-      reducer: appReducer,
-      environment: environment
-    ).assert(
-      .send(.didFinishLaunching(notification: nil)),
-      .receive(.requestAuthorizationResponse(.success(true))),
-      .do { delegateActionSubject.send(.willPresentNotification(notification, completion: completion)) },
-      .receive(.userNotification(.willPresentNotification(notification, completion: completion))),
-      .do { XCTAssertEqual(presentationOptions, [.list, .banner, .sound]) },
-      .do { delegateActionSubject.send(completion: .finished) }
+    delegate.continuation.yield(
+      .willPresentNotification(
+        notification,
+        completionHandler: { willPresentNotificationCompletionHandler($0) }
+      )
     )
+    await store.receive(
+      .userNotifications(
+        .willPresentNotification(
+          notification,
+          completionHandler: willPresentNotificationCompletionHandler
+        )
+      )
+    )
+    XCTAssertNoDifference(notificationPresentationOptions, [.list, .banner, .sound])
+    await task.cancel()
   }
 
-  func testReceivedNotification() throws {
-    let delegateActionSubject = PassthroughSubject<UserNotificationClient.Action, Never>()
-    environment.userNotificationClient.delegate = { delegateActionSubject.eraseToEffect() }
+  func testReceivedNotification() async throws {
+    let delegate = AsyncStream<UserNotificationClient.DeletegateAction>.streamWithContinuation()
 
-    var didComplete = false
-    let completion = { didComplete = true }
+    let store = TestStore(
+      initialState: App.State(count: nil),
+      reducer: App()
+    )
+    store.dependencies.userNotifications.requestAuthorization = { _ in true }
+    store.dependencies.userNotifications.delegate = { delegate.stream }
 
+    let task = await store.send(.didFinishLaunching(notification: nil))
+    await store.receive(.requestAuthorizationResponse(.success(true)))
+
+    var didReceiveResponseCompletionHandlerCalled = false
+    let didReceiveResponseCompletionHandler = { didReceiveResponseCompletionHandlerCalled = true }
     let content = UNMutableNotificationContent()
     content.userInfo = ["count": 5]
     let response = Notification.Response.user(
@@ -120,25 +125,29 @@ class ExampleTests: XCTestCase {
       )
     )
 
-    TestStore(
-      initialState: AppState(count: nil),
-      reducer: appReducer,
-      environment: environment
-    ).assert(
-      .send(.didFinishLaunching(notification: nil)),
-      .receive(.requestAuthorizationResponse(.success(true))),
-      .do { delegateActionSubject.send(.didReceiveResponse(response, completion: completion)) },
-      .receive(.userNotification(.didReceiveResponse(response, completion: completion))) {
-        $0.count = 5
-      },
-      .do { XCTAssertTrue(didComplete) },
-      .do { delegateActionSubject.send(completion: .finished) }
+    delegate.continuation.yield(
+      .didReceiveResponse(response, completionHandler: { didReceiveResponseCompletionHandler() })
     )
+    await store.receive(
+      .userNotifications(
+        .didReceiveResponse(
+          response,
+          completionHandler: didReceiveResponseCompletionHandler
+        )
+      )
+    ) {
+      $0.count = 5
+    }
+    XCTAssert(didReceiveResponseCompletionHandlerCalled)
+    await task.cancel()
   }
 
-  func testReceiveBackgroundNotification() throws {
-    let delegateActionSubject = PassthroughSubject<UserNotificationClient.Action, Never>()
-    environment.userNotificationClient.delegate = { delegateActionSubject.eraseToEffect() }
+  func testReceiveBackgroundNotification() async throws {
+    let store = TestStore(
+      initialState: App.State(count: nil),
+      reducer: App()
+    )
+    store.dependencies.remote.fetchRemoteCount = { 5 }
 
     var backgroundFetchResult: UIBackgroundFetchResult?
     let backgroundNotification = BackgroundNotification(
@@ -147,24 +156,20 @@ class ExampleTests: XCTestCase {
       fetchCompletionHandler: { backgroundFetchResult = $0 }
     )
 
-    TestStore(
-      initialState: AppState(count: nil),
-      reducer: appReducer,
-      environment: environment
-    ).assert(
-      .send(.didReceiveBackgroundNotification(backgroundNotification)),
-      .receive(.remoteCountResponse(.success(5))) {
-        $0.count = 5
-      },
-      .do { XCTAssertEqual(backgroundFetchResult, .newData) },
-      .do { delegateActionSubject.send(completion: .finished) }
-    )
+    await store.send(.didReceiveBackgroundNotification(backgroundNotification))
+    await store.receive(.remoteCountResponse(.success(5))) {
+      $0.count = 5
+    }
+    XCTAssertNoDifference(backgroundFetchResult, .newData)
   }
 
-  func testReceiveBackgroundNotificationFailure() throws {
-    let delegateActionSubject = PassthroughSubject<UserNotificationClient.Action, Never>()
-    environment.userNotificationClient.delegate = { delegateActionSubject.eraseToEffect() }
-    environment.remoteClient.fetchRemoteCount = { Effect(error: RemoteClient.Error()) }
+  func testReceiveBackgroundNotificationFailure() async throws {
+    let store = TestStore(
+      initialState: App.State(count: nil),
+      reducer: App()
+    )
+    struct Error: Swift.Error, Equatable {}
+    store.dependencies.remote.fetchRemoteCount = { throw Error() }
 
     var backgroundFetchResult: UIBackgroundFetchResult?
     let backgroundNotification = BackgroundNotification(
@@ -173,21 +178,16 @@ class ExampleTests: XCTestCase {
       fetchCompletionHandler: { backgroundFetchResult = $0 }
     )
 
-    TestStore(
-      initialState: AppState(count: nil),
-      reducer: appReducer,
-      environment: environment
-    ).assert(
-      .send(.didReceiveBackgroundNotification(backgroundNotification)),
-      .receive(.remoteCountResponse(.failure(RemoteClient.Error()))),
-      .do { XCTAssertEqual(backgroundFetchResult, .failed) },
-      .do { delegateActionSubject.send(completion: .finished) }
-    )
+    await store.send(.didReceiveBackgroundNotification(backgroundNotification))
+    await store.receive(.remoteCountResponse(.failure(Error())))
+    XCTAssertNoDifference(backgroundFetchResult, .failed)
   }
 
-  func testReceiveBackgroundNotificationWithoutContent() throws {
-    let delegateActionSubject = PassthroughSubject<UserNotificationClient.Action, Never>()
-    environment.userNotificationClient.delegate = { delegateActionSubject.eraseToEffect() }
+  func testReceiveBackgroundNotificationWithoutContent() async throws {
+    let store = TestStore(
+      initialState: App.State(count: nil),
+      reducer: App()
+    )
 
     var backgroundFetchResult: UIBackgroundFetchResult?
     let backgroundNotification = BackgroundNotification(
@@ -196,43 +196,39 @@ class ExampleTests: XCTestCase {
       fetchCompletionHandler: { backgroundFetchResult = $0 }
     )
 
-    TestStore(
-      initialState: AppState(count: nil),
-      reducer: appReducer,
-      environment: environment
-    ).assert(
-      .send(.didReceiveBackgroundNotification(backgroundNotification)),
-      .do { XCTAssertEqual(backgroundFetchResult, .noData) },
-      .do { delegateActionSubject.send(completion: .finished) }
-    )
+    await store.send(.didReceiveBackgroundNotification(backgroundNotification))
+    XCTAssertNoDifference(backgroundFetchResult, .noData)
   }
 
-  func testTappedScheduleButton() throws {
-    var notificationRequest: UNNotificationRequest?
-    environment.userNotificationClient.add = { request in
-      notificationRequest = request
-      return Effect(value: ())
+  func testTappedScheduleButton() async throws {
+    let store = TestStore(
+      initialState: App.State(count: nil),
+      reducer: App()
+    )
+
+    let notificationRequest = ActorIsolated<UNNotificationRequest?>(nil)
+    let removedPendingIdentifiers = ActorIsolated<[String]?>(nil)
+
+    store.dependencies.userNotifications.add = { request in
+      await notificationRequest.setValue(request)
     }
-    var removedPendingIdentifiers: [String]?
-    environment.userNotificationClient.removePendingNotificationRequestsWithIdentifiers = { identifiers in
-      removedPendingIdentifiers = identifiers
-      return .fireAndForget {}
+    store.dependencies.userNotifications.removePendingNotificationRequestsWithIdentifiers = { identifiers in
+      await removedPendingIdentifiers.setValue(identifiers)
     }
 
-    TestStore(
-      initialState: AppState(count: nil),
-      reducer: appReducer,
-      environment: environment
-    ).assert(
-      .send(.tappedScheduleButton),
-      .receive(.addNotificationResponse(.success(Unit()))),
-      .do { XCTAssertEqual(removedPendingIdentifiers, ["example_notification"]) },
-      .do { XCTAssertEqual(notificationRequest?.content.title, "Example title") },
-      .do { XCTAssertEqual(notificationRequest?.content.body, "Example body") },
-      .do { XCTAssertTrue(notificationRequest?.trigger is UNTimeIntervalNotificationTrigger) },
-      .do { XCTAssertEqual(
-        (notificationRequest?.trigger as? UNTimeIntervalNotificationTrigger)?.timeInterval, 5
-      )}
-    )
+    await store.send(.tappedScheduleButton)
+    await store.receive(.addNotificationResponse(.success(Unit())))
+    await removedPendingIdentifiers.withValue {
+      XCTAssertNoDifference($0, ["example_notification"])
+    }
+    await notificationRequest.withValue {
+      XCTAssertEqual($0?.content.title, "Example title")
+      XCTAssertEqual($0?.content.body, "Example body")
+      XCTAssertTrue($0?.trigger is UNTimeIntervalNotificationTrigger)
+      XCTAssertEqual(
+        ($0?.trigger as? UNTimeIntervalNotificationTrigger)?.timeInterval,
+        5
+      )
+    }
   }
 }

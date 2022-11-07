@@ -1,5 +1,6 @@
 import UserNotifications
 import CoreLocation
+import XCTestDynamicOverlay
 
 public struct Notification: Equatable {
   public let rawValue: UNNotification?
@@ -77,70 +78,44 @@ extension Notification {
     public var rawValue: UNNotificationContent?
 
     @available(tvOS, unavailable)
-    public var title: () -> String = {
-      _unimplemented("title")
-    }
+    public var title: () -> String = unimplemented("title")
 
     @available(tvOS, unavailable)
-    public var subtitle: () -> String = {
-      _unimplemented("subtitle")
-    }
+    public var subtitle: () -> String = unimplemented("subtitle")
 
     @available(tvOS, unavailable)
-    public var body: () -> String = {
-      _unimplemented("body")
-    }
+    public var body: () -> String = unimplemented("body")
 
-    public var badge: () -> NSNumber? = {
-      _unimplemented("badge")
-    }
+    public var badge: () -> NSNumber? = unimplemented("badge")
 
     @available(tvOS, unavailable)
-    public var sound: () -> UNNotificationSound? = {
-      _unimplemented("sound")
-    }
+    public var sound: () -> UNNotificationSound? = unimplemented("sound")
 
     @available(macOS, unavailable)
     @available(tvOS, unavailable)
-    public var launchImageName: () -> String = {
-      _unimplemented("launchImageName")
-    }
+    public var launchImageName: () -> String = unimplemented("launchImageName")
 
     @available(tvOS, unavailable)
-    public var userInfo: () -> [AnyHashable : Any] = {
-      _unimplemented("userInfo")
-    }
+    public var userInfo: () -> [AnyHashable: Any] = unimplemented("userInfo")
 
     @available(tvOS, unavailable)
-    public var attachments: () -> [Notification.Attachment] = {
-      _unimplemented("attachments")
-    }
+    public var attachments: () -> [Notification.Attachment] = unimplemented("attachments")
 
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
-    public var summaryArgument: () -> String = {
-      _unimplemented("summaryArgument")
-    }
+    public var summaryArgument: () -> String = unimplemented("summaryArgument")
 
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
-    public var summaryArgumentCount: () -> Int = {
-      _unimplemented("summaryArgumentCount")
-    }
+    public var summaryArgumentCount: () -> Int = unimplemented("summaryArgumentCount")
 
     @available(tvOS, unavailable)
-    public var categoryIdentifier: () -> String = {
-      _unimplemented("categoryIdentifier")
-    }
+    public var categoryIdentifier: () -> String = unimplemented("categoryIdentifier")
 
     @available(tvOS, unavailable)
-    public var threadIdentifier: () -> String = {
-      _unimplemented("threadIdentifier")
-    }
+    public var threadIdentifier: () -> String = unimplemented("threadIdentifier")
 
-    public var targetContentIdentifier: () -> String? = {
-      _unimplemented("targetContentIdentifier")
-    }
+    public var targetContentIdentifier: () -> String? = unimplemented("targetContentIdentifier")
 
     public init(rawValue: UNNotificationContent) {
       self.rawValue = rawValue
@@ -460,75 +435,61 @@ extension Notification.Response {
 }
 
 extension Notification {
-  public struct Settings {
-    public var rawValue: () -> UNNotificationSettings? = {
-      _unimplemented("rawValue")
-    }
+  public struct Settings: Equatable {
+    public var rawValue: () -> UNNotificationSettings? = unimplemented("rawValue")
 
     @available(tvOS, unavailable)
-    public var alertSetting: () -> UNNotificationSetting = {
-      _unimplemented("alertSetting")
-    }
+    public var alertSetting: () -> UNNotificationSetting = unimplemented("alertSetting")
 
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
-    public var alertStyle: () -> UNAlertStyle = {
-      _unimplemented("alertStyle")
-    }
+    public var alertStyle: () -> UNAlertStyle = unimplemented("alertStyle")
 
     @available(macOS, unavailable)
     @available(tvOS, unavailable)
-    public var announcementSetting: () -> UNNotificationSetting = {
-      _unimplemented("announcementSetting")
-    }
+    public var announcementSetting: () -> UNNotificationSetting = unimplemented(
+      "announcementSetting"
+    )
 
-    public var authorizationStatus: () -> UNAuthorizationStatus = {
-      _unimplemented("authorizationStatus")
-    }
+    public var authorizationStatus: () -> UNAuthorizationStatus = unimplemented(
+      "authorizationStatus"
+    )
 
     @available(watchOS, unavailable)
-    public var badgeSetting: () -> UNNotificationSetting = {
-      _unimplemented("badgeSetting")
-    }
+    public var badgeSetting: () -> UNNotificationSetting = unimplemented("badgeSetting")
 
     @available(macOS, unavailable)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
-    public var carPlaySetting: () -> UNNotificationSetting = {
-      _unimplemented("carPlaySetting")
-    }
+    public var carPlaySetting: () -> UNNotificationSetting = unimplemented("carPlaySetting")
 
     @available(tvOS, unavailable)
-    public var criticalAlertSetting: () -> UNNotificationSetting = {
-      _unimplemented("criticalAlertSetting")
-    }
-
-    @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
-    public var lockScreenSetting: () -> UNNotificationSetting = {
-      _unimplemented("lockScreenSetting")
-    }
-
-    @available(tvOS, unavailable)
-    public var notificationCenterSetting: () -> UNNotificationSetting = {
-      _unimplemented("notificationCenterSetting")
-    }
-
-    @available(tvOS, unavailable)
-    public var providesAppNotificationSettings: () -> Bool = {
-      _unimplemented("providesAppNotificationSettings")
-    }
+    public var criticalAlertSetting: () -> UNNotificationSetting = unimplemented(
+      "criticalAlertSetting"
+    )
 
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
-    public var showPreviewsSetting: () -> UNShowPreviewsSetting = {
-      _unimplemented("showPreviewsSetting")
-    }
+    public var lockScreenSetting: () -> UNNotificationSetting = unimplemented("lockScreenSetting")
 
     @available(tvOS, unavailable)
-    public var soundSetting: () -> UNNotificationSetting = {
-      _unimplemented("soundSetting")
-    }
+    public var notificationCenterSetting: () -> UNNotificationSetting = unimplemented(
+      "notificationCenterSetting"
+    )
+
+    @available(tvOS, unavailable)
+    public var providesAppNotificationSettings: () -> Bool = unimplemented(
+      "providesAppNotificationSettings"
+    )
+
+    @available(tvOS, unavailable)
+    @available(watchOS, unavailable)
+    public var showPreviewsSetting: () -> UNShowPreviewsSetting = unimplemented(
+      "showPreviewsSetting"
+    )
+
+    @available(tvOS, unavailable)
+    public var soundSetting: () -> UNNotificationSetting = unimplemented("soundSetting")
 
     public init(rawValue: UNNotificationSettings) {
       self.rawValue = { rawValue }
@@ -575,6 +536,10 @@ extension Notification {
       #if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
       self.soundSetting = { rawValue.soundSetting }
       #endif
+    }
+
+    public static func == (lhs: Notification.Settings, rhs: Notification.Settings) -> Bool {
+      lhs.rawValue() == rhs.rawValue()
     }
   }
 }

@@ -2,6 +2,8 @@
 
 Composable User Notifications is library that bridges [the Composable Architecture](https://github.com/pointfreeco/swift-composable-architecture) and [User Notifications](https://developer.apple.com/documentation/usernotifications).
 
+This library is modelling it's dependency using [swift concurrency](https://pointfreeco.github.io/swift-composable-architecture/main/documentation/composablearchitecture/swiftconcurrency) since version 0.3.0.
+
 * [Example](#example)
 * [Basic usage](#basic-usage)
 * [Installation](#installation)
@@ -10,46 +12,46 @@ Composable User Notifications is library that bridges [the Composable Architectu
 Check out the Example demo to see how [ComposableUserNotifications](./Examples/Example) can be used.
 
 ## Basic usage
-To handle incoming user notification you can observe the `UNUserNotificationCenterDelegate` actions `UserNotificationClient.Action` of the `UserNotificationClient.delegate` effect.
+To handle incoming user notification you can observe the `UNUserNotificationCenterDelegate` actions through `UserNotificationClient.DelegateAction` of the `UserNotificationClient.delegate`.
 
 ```swift
 import ComposableUserNotifications
 
-enum AppAction {
-  case userNotification(UserNotificationClient.Action)
-
+struct App: ReducerProtocol {
+  enum Action {
+  case userNotification(UserNotificationClient.DelegateAction)
   // Your domain's other actions:
-  ...
-}
+...
 ```
-The `UserNotificationClient.Action` holds the actions
+
+The `UserNotificationClient.DelegateAction` holds the actions
 * for handling foreground notifications `willPresentNotification(_:completion)`
-* to process the user's response to a delivered notification `didReceiveResponse(_:completion:)`
+* to process the user's response to a delivered notification `didReceiveResponse(_:completionHandler:)`
 * to display the in-app notification settings `openSettingsForNotification(_:)`
 
-The wrapper around apple's `UNUserNotificationCenter` `UserNotificationClient`, should be part of your applications environment.
-```swift
-struct AppEnvironment {
-  var userNotificationClient: UserNotificationClient
+The wrapper around apple's `UNUserNotificationCenter` `UserNotificationClient`, is available on the `DependencyValues` and can be retrieved on using `@Dependency(\.userNotifications)`.
 
-  // Your domain's other dependencies:
-  ...
+At some point you need to subscribe to `UserNotificationClient.DelegateAction` in order not to miss any `UNUserNotificationCenterDelegate` related actions. This can be done early after starting the application.
+
+```swift
+func reduce(into state: inout State, action: Action) -> EffectTask<Action> {
+  switch action {
+  case let .didFinishLaunching(notification):
+    ...
+    return .run { send in
+        for await event in self.userNotifications.delegate() {
+          await send(.userNotifications(event))
+        }
+      }
+    }
+  }
 }
 ```
 
-At some point you need to subscribe to `UserNotificationClient.Action` in order not to miss any `UNUserNotificationCenterDelegate` related actions. This can be done early after starting the application.
-
-```swift
-let appReducer = Reducer<AppState, AppAction, AppEnvironment> { state, action, environment in
-  switch action {
-  case .didFinishLaunching: // or onAppear of your first View
-    return environment.userNotificationClient
-      .delegate()
-      .map(AppAction.userNotification)
-```
 When subscribing to these actions we can handle them as follows.
 
 ```swift
+...
   case let .userNotification(.willPresentNotification(notification, completion)):
     return .fireAndForget {
       completion([.list, .banner, .sound])
@@ -62,20 +64,25 @@ When subscribing to these actions we can handle them as follows.
 
   case .userNotification(.openSettingsForNotification):
     return .none
+...
 ```
 
 To request authorization from the user you can use `requestAuthorization` and handle the users choice as a new action.
 
 ```swift
-let appReducer = Reducer<AppState, AppAction, AppEnvironment> { state, action, environment in
+func reduce(into state: inout State, action: Action) -> EffectTask<Action> {
   switch action {
   case .didFinishLaunching:
-    return .merge(
-      ...,
-      environment.userNotificationClient.requestAuthorization([.alert, .badge, .sound])
-        .catchToEffect()
-        .map(AppAction.requestAuthorizationResponse)
+    return .task {
+      .requestAuthorizationResponse(
+        TaskResult {
+          try await self.userNotifications.requestAuthorization([.alert, .badge, .sound])
+        }
       )
+    }
+  }
+  ...
+}
 ```
 
 Adding notification requests is also straight forward. It can be done using `UNNotificationRequest` in conjunction with `UserNotificationClient.add(_:)`.
@@ -92,17 +99,19 @@ Adding notification requests is also straight forward. It can be done using `UNN
       trigger: UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
     )
 
-    return .concatenate(
-      environment.userNotificationClient.removePendingNotificationRequestsWithIdentifiers(["example_notification"])
-        .fireAndForget(),
-      environment.userNotificationClient.add(request)
-        .map(Unit.init)
-        .catchToEffect()
-        .map(AppAction.addNotificationResponse)
-    )
+    return .task {
+      await self.userNotifications
+        .removePendingNotificationRequestsWithIdentifiers(["example_notification"])
+      return await .addNotificationResponse(
+        TaskResult {
+          Unit(try await self.userNotifications.add(request))
+        }
+      )
+    }
+  ...
 ```
-There are of course a lot more wrapped API calls to `UNUserNotificationCenter` available. 
-The true power of this approach again lies in the testability of your notification logic.
+All API calls to `UNUserNotificationCenter` are available through `UserNotificationClient`. 
+The true power of this approach lies in the testability of your notification logic.
 For more info around testability have a look at [ExampleTests.swift](./Examples/Example/ExampleTests/ExampleTests.swift).
 
 ## Installation

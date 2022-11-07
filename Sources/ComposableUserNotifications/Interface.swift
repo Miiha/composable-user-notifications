@@ -1,6 +1,7 @@
 import CoreLocation
 import ComposableArchitecture
 import UserNotifications
+import XCTestDynamicOverlay
 
 /// A wrapper around UserNotifications's `UNUserNotificationCenter` that exposes its functionality through
 /// effects and actions, making it easy to use with the Composable Architecture and easy to test.
@@ -13,88 +14,56 @@ public struct UserNotificationClient {
   /// Actions that correspond to `UNUserNotificationCenterDelegate` methods.
   ///
   /// See `UNUserNotificationCenterDelegate` for more information.
-  public enum Action {
+  public enum DeletegateAction {
     case willPresentNotification(
           _ notification: Notification,
-          completion: (UNNotificationPresentationOptions) -> Void)
+          completionHandler: (UNNotificationPresentationOptions) -> Void)
 
     @available(tvOS, unavailable)
-    case didReceiveResponse(_ response: Notification.Response, completion: () -> Void)
+    case didReceiveResponse(_ response: Notification.Response, completionHandler: () -> Void)
 
     case openSettingsForNotification(_ notification: Notification?)
   }
 
-  public var add: (UNNotificationRequest) -> Effect<Void, Error> = { _ in
-    _unimplemented("add")
-  }
+  public var add: @Sendable (UNNotificationRequest) async throws -> Void  =
+    unimplemented("\(Self.self).add")
 
   @available(tvOS, unavailable)
-  public var getDeliveredNotifications: () -> Effect<[Notification], Never> = {
-    _unimplemented("getDeliveredNotifications")
-  }
+  public var deliveredNotifications: @Sendable () async -> [Notification] = unimplemented("\(Self.self).deliveredNotifications")
 
   @available(tvOS, unavailable)
-  public var getNotificationCategories: () -> Effect<Set<UNNotificationCategory>, Never> = {
-    _unimplemented("getNotificationCategories")
-  }
+  public var notificationCategories: () async -> Set<UNNotificationCategory> = unimplemented("\(Self.self).deliveredNotifications")
 
-  public var getNotificationSettings: () -> Effect<Notification.Settings, Never> = {
-    _unimplemented("getNotificationSettings")
-  }
+  public var notificationSettings: () async -> Notification.Settings = unimplemented("\(Self.self).notificationSettings")
 
-  public var getPendingNotificationRequests: () -> Effect<[Notification.Request], Never> = {
-    _unimplemented("getPendingNotificationRequests")
-  }
+  public var pendingNotificationRequests: () async -> [Notification.Request] = unimplemented("\(Self.self).pendingNotificationRequests")
 
   @available(tvOS, unavailable)
-  public var removeAllDeliveredNotifications: () -> Effect<Never, Never> = {
-    _unimplemented("removeAllDeliveredNotifications")
-  }
+  public var removeAllDeliveredNotifications: () async -> Void = unimplemented("\(Self.self).removeAllDeliveredNotifications")
 
-  public var removeAllPendingNotificationRequests: () -> Effect<Never, Never> = {
-    _unimplemented("removeAllPendingNotificationRequests")
-  }
+  public var removeAllPendingNotificationRequests: () async -> Void = unimplemented("\(Self.self).removeAllPendingNotificationRequests")
 
   @available(tvOS, unavailable)
-  public var removeDeliveredNotificationsWithIdentifiers: ([String]) -> Effect<Never, Never> = { _ in
-    _unimplemented("removeDeliveredNotificationsWithIdentifiers")
-  }
+  public var removeDeliveredNotificationsWithIdentifiers: ([String]) async -> Void = unimplemented("\(Self.self).removeDeliveredNotificationsWithIdentifiers")
 
-  public var removePendingNotificationRequestsWithIdentifiers: ([String]) -> Effect<Never, Never> = { _ in
-    _unimplemented("removePendingNotificationRequestsWithIdentifiers")
-  }
+  public var removePendingNotificationRequestsWithIdentifiers: ([String]) async -> Void = unimplemented("\(Self.self).removePendingNotificationRequestsWithIdentifiers")
 
-  public var requestAuthorization: (UNAuthorizationOptions) -> Effect<Bool, Error> = { _ in
-    _unimplemented("requestAuthorization")
-  }
+  public var requestAuthorization: (UNAuthorizationOptions) async throws -> Bool =
+    unimplemented("\(Self.self).requestAuthorization")
 
   @available(tvOS, unavailable)
-  public var setNotificationCategories: (Set<UNNotificationCategory>) -> Effect<Never, Never> = { _ in
-    _unimplemented("setNotificationCategories")
-  }
+  public var setNotificationCategories: (Set<UNNotificationCategory>) async -> Void = unimplemented("\(Self.self).setNotificationCategories")
 
-  public var supportsContentExtensions: () -> Bool = {
-    _unimplemented("supportsContentExtensions")
-  }
+  public var supportsContentExtensions: () -> Bool = unimplemented("\(Self.self).supportsContentExtensions")
 
   /// This Effect represents calls to the `UNUserNotificationCenterDelegate`.
   /// Handling the completion handlers of the `UNUserNotificationCenterDelegate`s methods
   /// by multiple observers might lead to unexpected behaviour.
-  public var delegate: () -> Effect<Action, Never> = {
-    _unimplemented("delegate")
-  }
-
-  public struct Error: Swift.Error, Equatable {
-    public let error: NSError
-
-    public init(_ error: Swift.Error) {
-      self.error = error as NSError
-    }
-  }
+  public var delegate: @Sendable () -> AsyncStream<DeletegateAction> = unimplemented("\(Self.self).delegate", placeholder: .finished)
 }
 
-extension UserNotificationClient.Action: Equatable {
-  public static func == (lhs: UserNotificationClient.Action, rhs: UserNotificationClient.Action) -> Bool {
+extension UserNotificationClient.DeletegateAction: Equatable {
+  public static func == (lhs: UserNotificationClient.DeletegateAction, rhs: UserNotificationClient.DeletegateAction) -> Bool {
     switch (lhs, rhs) {
     case let (.willPresentNotification(lhs, _), .willPresentNotification(rhs, _)):
       return lhs == rhs

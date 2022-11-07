@@ -1,10 +1,3 @@
-//
-//  Helper.swift
-//  Example
-//
-//  Created by Michael Kao on 01.11.20.
-//
-
 import Foundation
 
 struct Unit: Equatable {
