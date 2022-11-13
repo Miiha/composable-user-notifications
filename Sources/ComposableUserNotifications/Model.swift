@@ -538,6 +538,12 @@ extension Notification {
       #endif
     }
 
+      public init(with status: UNAuthorizationStatus) async {
+          let settings = await UNUserNotificationCenter.current().notificationSettings()
+          settings.setValue(status.rawValue, forKey: "authorizationStatus")
+          self.init(rawValue: settings)
+      }
+      
     public static func == (lhs: Notification.Settings, rhs: Notification.Settings) -> Bool {
       lhs.rawValue() == rhs.rawValue()
     }
