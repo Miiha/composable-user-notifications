@@ -7,7 +7,7 @@ import XCTest
 @MainActor
 class ExampleTests: XCTestCase {
   func testApplicationLaunchWithoutNotification() async throws {
-    let delegate = AsyncStream<UserNotificationClient.DeletegateAction>.streamWithContinuation()
+    let delegate = AsyncStream<UserNotificationClient.DelegateAction>.streamWithContinuation()
     let requestedAuthorizationOptions = ActorIsolated<UNAuthorizationOptions?>(nil)
     let store = TestStore(
       initialState: App.State(count: nil),
@@ -27,7 +27,7 @@ class ExampleTests: XCTestCase {
   }
 
   func testApplicationLaunchWithtNotification() async throws {
-    let delegate = AsyncStream<UserNotificationClient.DeletegateAction>.streamWithContinuation()
+    let delegate = AsyncStream<UserNotificationClient.DelegateAction>.streamWithContinuation()
     let requestedAuthorizationOptions = ActorIsolated<UNAuthorizationOptions?>(nil)
 
     let store = TestStore(
@@ -51,7 +51,7 @@ class ExampleTests: XCTestCase {
   }
 
   func testNotificationPresentationHandling() async throws {
-    let delegate = AsyncStream<UserNotificationClient.DeletegateAction>.streamWithContinuation()
+    let delegate = AsyncStream<UserNotificationClient.DelegateAction>.streamWithContinuation()
 
     let store = TestStore(
       initialState: App.State(count: nil),
@@ -95,7 +95,7 @@ class ExampleTests: XCTestCase {
   }
 
   func testReceivedNotification() async throws {
-    let delegate = AsyncStream<UserNotificationClient.DeletegateAction>.streamWithContinuation()
+    let delegate = AsyncStream<UserNotificationClient.DelegateAction>.streamWithContinuation()
 
     let store = TestStore(
       initialState: App.State(count: nil),

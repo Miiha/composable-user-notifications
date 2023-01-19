@@ -82,9 +82,9 @@ extension UserNotificationClient: DependencyKey {
 
 private extension UserNotificationClient {
   class Delegate: NSObject, UNUserNotificationCenterDelegate {
-    let continuation: AsyncStream<UserNotificationClient.DeletegateAction>.Continuation
+    let continuation: AsyncStream<UserNotificationClient.DelegateAction>.Continuation
 
-    init(continuation: AsyncStream<UserNotificationClient.DeletegateAction>.Continuation) {
+    init(continuation: AsyncStream<UserNotificationClient.DelegateAction>.Continuation) {
       self.continuation = continuation
     }
 

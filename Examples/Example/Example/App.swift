@@ -15,7 +15,7 @@ struct App: ReducerProtocol {
     case remoteCountResponse(TaskResult<Int>)
     case requestAuthorizationResponse(TaskResult<Bool>)
     case tappedScheduleButton
-    case userNotifications(UserNotificationClient.DeletegateAction)
+    case userNotifications(UserNotificationClient.DelegateAction)
   }
 
   @Dependency(\.remote) var remote
