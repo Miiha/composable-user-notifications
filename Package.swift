@@ -18,13 +18,13 @@ let package = Package(
     )
   ],
   dependencies: [
-    .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "0.45.0"),
+    .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "0.1.2"),
   ],
   targets: [
     .target(
       name: "ComposableUserNotifications",
       dependencies: [
-        .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+        .product(name: "Dependencies", package: "swift-dependencies")
       ]
     ),
     .testTarget(
