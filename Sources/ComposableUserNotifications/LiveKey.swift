@@ -1,5 +1,5 @@
 import Foundation
-import ComposableArchitecture
+import Dependencies
 import UserNotifications
 
 extension UserNotificationClient: DependencyKey {
