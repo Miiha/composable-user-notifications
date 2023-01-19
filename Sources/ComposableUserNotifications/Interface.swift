@@ -14,7 +14,7 @@ public struct UserNotificationClient {
   /// Actions that correspond to `UNUserNotificationCenterDelegate` methods.
   ///
   /// See `UNUserNotificationCenterDelegate` for more information.
-  public enum DeletegateAction {
+  public enum DelegateAction {
     case willPresentNotification(
           _ notification: Notification,
           completionHandler: (UNNotificationPresentationOptions) -> Void)
@@ -59,11 +59,11 @@ public struct UserNotificationClient {
   /// This Effect represents calls to the `UNUserNotificationCenterDelegate`.
   /// Handling the completion handlers of the `UNUserNotificationCenterDelegate`s methods
   /// by multiple observers might lead to unexpected behaviour.
-  public var delegate: @Sendable () -> AsyncStream<DeletegateAction> = unimplemented("\(Self.self).delegate", placeholder: .finished)
+  public var delegate: @Sendable () -> AsyncStream<DelegateAction> = unimplemented("\(Self.self).delegate", placeholder: .finished)
 }
 
-extension UserNotificationClient.DeletegateAction: Equatable {
-  public static func == (lhs: UserNotificationClient.DeletegateAction, rhs: UserNotificationClient.DeletegateAction) -> Bool {
+extension UserNotificationClient.DelegateAction: Equatable {
+  public static func == (lhs: UserNotificationClient.DelegateAction, rhs: UserNotificationClient.DelegateAction) -> Bool {
     switch (lhs, rhs) {
     case let (.willPresentNotification(lhs, _), .willPresentNotification(rhs, _)):
       return lhs == rhs
