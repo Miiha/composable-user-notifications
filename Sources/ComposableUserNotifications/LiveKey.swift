@@ -71,7 +71,7 @@ extension UserNotificationClient: DependencyKey {
         let delegate = Delegate(continuation: continuation)
         UNUserNotificationCenter.current().delegate = delegate
         continuation.onTermination = { _ in
-          let _ = delegate
+          _ = delegate
         }
       }
     }
