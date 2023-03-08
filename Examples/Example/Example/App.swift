@@ -10,7 +10,7 @@ struct App: ReducerProtocol {
 
   enum Action: Equatable {
     case addNotificationResponse(TaskResult<Unit>)
-    case didFinishLaunching(notification: UserNotification?)
+    case didFinishLaunching
     case didReceiveBackgroundNotification(BackgroundNotification)
     case remoteCountResponse(TaskResult<Int>)
     case requestAuthorizationResponse(TaskResult<Bool>)
@@ -23,15 +23,14 @@ struct App: ReducerProtocol {
 
   func reduce(into state: inout State, action: Action) -> EffectTask<Action> {
     switch action {
-    case let .didFinishLaunching(notification):
-      if case let .count(value) = notification {
-        state.count = value
-      }
-
+    case .didFinishLaunching:
+      // Ensure that the delegate is created within `didFinishLaunchingWithOptions` to
+      // receive notifications that started the application.
+      let userNotifications = self.userNotifications.delegate()
       return .run { send in
         await withThrowingTaskGroup(of: Void.self) { group in
           group.addTask {
-            for await event in self.userNotifications.delegate() {
+            for await event in userNotifications {
               await send(.userNotifications(event))
             }
           }
@@ -80,7 +79,8 @@ struct App: ReducerProtocol {
       }
 
     case let .userNotifications(.didReceiveResponse(response, completion)):
-      let notification = UserNotification(userInfo: response.notification.request.content.userInfo())
+      let userInfo = response.notification.request.content.userInfo()
+      let notification = UserNotification(userInfo: userInfo)
       if case let .count(value) = notification {
         state.count = value
       }
@@ -100,11 +100,12 @@ struct App: ReducerProtocol {
       let content = UNMutableNotificationContent()
       content.title = "Example title"
       content.body = "Example body"
+      content.userInfo = ["count": 123]
 
       let request = UNNotificationRequest(
         identifier: "example_notification",
         content: content,
-        trigger: UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
+        trigger: UNTimeIntervalNotificationTrigger(timeInterval: 2, repeats: false)
       )
 
       return .task {

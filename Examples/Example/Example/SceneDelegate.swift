@@ -33,7 +33,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
 
-    ViewStore(store).send(.didFinishLaunching(notification: launchOptions?.notification))
+    ViewStore(store).send(.didFinishLaunching)
     return true
   }
 
