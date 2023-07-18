@@ -78,42 +78,53 @@ extension Notification {
     public var rawValue: UNNotificationContent?
 
     @available(tvOS, unavailable)
-    public var title: () -> String = unimplemented("title")
+    public var title: String { getTitle() }
+    private var getTitle: () -> String = unimplemented("title")
+    
+    @available(tvOS, unavailable)
+    public var subtitle: String { getSubtitle() }
+    private var getSubtitle: () -> String = unimplemented("subtitle")
 
     @available(tvOS, unavailable)
-    public var subtitle: () -> String = unimplemented("subtitle")
-
-    @available(tvOS, unavailable)
-    public var body: () -> String = unimplemented("body")
+    public var body: String { getBody() }
+    private var getBody: () -> String = unimplemented("body")
 
     public var badge: () -> NSNumber? = unimplemented("badge")
 
     @available(tvOS, unavailable)
-    public var sound: () -> UNNotificationSound? = unimplemented("sound")
+    public var sound: UNNotificationSound? { getSound() }
+    private var getSound: () -> UNNotificationSound? = unimplemented("sound")
 
     @available(macOS, unavailable)
     @available(tvOS, unavailable)
-    public var launchImageName: () -> String = unimplemented("launchImageName")
+    public var launchImageName: String { getLaunchImageName() }
+    private var getLaunchImageName: () -> String = unimplemented("launchImageName")
 
     @available(tvOS, unavailable)
-    public var userInfo: () -> [AnyHashable: Any] = unimplemented("userInfo")
+    public var userInfo: [AnyHashable: Any] { getUserInfo() }
+    private var getUserInfo: () -> [AnyHashable: Any] = unimplemented("userInfo")
 
     @available(tvOS, unavailable)
-    public var attachments: () -> [Notification.Attachment] = unimplemented("attachments")
+    public var attachments: [Notification.Attachment] { getAttachments() }
+    private var getAttachments: () -> [Notification.Attachment] = unimplemented("attachments")
 
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
-    public var summaryArgument: () -> String = unimplemented("summaryArgument")
+    public var summaryArgument: String { getSummaryArgument() }
+    private var getSummaryArgument: () -> String = unimplemented("summaryArgument")
 
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
-    public var summaryArgumentCount: () -> Int = unimplemented("summaryArgumentCount")
+    public var summaryArgumentCount: Int { getSummaryArgumentCount() }
+    private var getSummaryArgumentCount: () -> Int = unimplemented("summaryArgumentCount")
 
     @available(tvOS, unavailable)
-    public var categoryIdentifier: () -> String = unimplemented("categoryIdentifier")
+    public var categoryIdentifier: String { getCategoryIdentifier() }
+    private var getCategoryIdentifier: () -> String = unimplemented("categoryIdentifier")
 
     @available(tvOS, unavailable)
-    public var threadIdentifier: () -> String = unimplemented("threadIdentifier")
+    public var threadIdentifier: String { getThreadIdentifier() }
+    private var getThreadIdentifier: () -> String = unimplemented("threadIdentifier")
 
     public var targetContentIdentifier: () -> String? = unimplemented("targetContentIdentifier")
 
@@ -121,49 +132,49 @@ extension Notification {
       self.rawValue = rawValue
 
       #if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
-      self.title = { rawValue.title }
+      self.getTitle = { rawValue.title }
       #endif
 
       #if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
-      self.subtitle = { rawValue.subtitle }
+      self.getSubtitle = { rawValue.subtitle }
       #endif
 
       #if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
-      self.body = { rawValue.body }
+      self.getBody = { rawValue.body }
       #endif
 
       self.badge = { rawValue.badge }
 
       #if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
-      self.sound = { rawValue.sound }
+      self.getSound = { rawValue.sound }
       #endif
 
       #if os(iOS) || os(watchOS) || targetEnvironment(macCatalyst)
-      self.launchImageName = { rawValue.launchImageName }
+      self.getLaunchImageName = { rawValue.launchImageName }
       #endif
 
       #if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
-      self.userInfo = { rawValue.userInfo }
+      self.getUserInfo = { rawValue.userInfo }
       #endif
 
       #if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
-      self.attachments = { rawValue.attachments.map(Notification.Attachment.init) }
+      self.getAttachments = { rawValue.attachments.map(Notification.Attachment.init) }
       #endif
 
       #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
-      self.summaryArgument = { rawValue.summaryArgument }
+      self.getSummaryArgument = { rawValue.summaryArgument }
       #endif
 
       #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
-      self.summaryArgumentCount = { rawValue.summaryArgumentCount }
+      self.getSummaryArgumentCount = { rawValue.summaryArgumentCount }
       #endif
 
       #if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
-      self.categoryIdentifier = { rawValue.categoryIdentifier }
+      self.getCategoryIdentifier = { rawValue.categoryIdentifier }
       #endif
 
       #if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
-      self.threadIdentifier = { rawValue.threadIdentifier }
+      self.getThreadIdentifier = { rawValue.threadIdentifier }
       #endif
 
       self.targetContentIdentifier = { rawValue.targetContentIdentifier }
@@ -439,15 +450,18 @@ extension Notification {
     public var rawValue: () -> UNNotificationSettings? = unimplemented("rawValue")
 
     @available(tvOS, unavailable)
-    public var alertSetting: () -> UNNotificationSetting = unimplemented("alertSetting")
+    public var alertSetting: UNNotificationSetting { getAlertSetting() }
+    private var getAlertSetting: () -> UNNotificationSetting = unimplemented("alertSetting")
 
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
-    public var alertStyle: () -> UNAlertStyle = unimplemented("alertStyle")
+    public var alertStyle: UNAlertStyle { getAlertStyle() }
+    public var getAlertStyle: () -> UNAlertStyle = unimplemented("alertStyle")
 
     @available(macOS, unavailable)
     @available(tvOS, unavailable)
-    public var announcementSetting: () -> UNNotificationSetting = unimplemented(
+    public var announcementSetting: UNNotificationSetting { getAnnouncementSetting() }
+    private var getAnnouncementSetting: () -> UNNotificationSetting = unimplemented(
       "announcementSetting"
     )
 
@@ -456,85 +470,93 @@ extension Notification {
     )
 
     @available(watchOS, unavailable)
-    public var badgeSetting: () -> UNNotificationSetting = unimplemented("badgeSetting")
+    public var badgeSetting: UNNotificationSetting { getBadgeSetting() }
+    private var getBadgeSetting: () -> UNNotificationSetting = unimplemented("badgeSetting")
 
     @available(macOS, unavailable)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
-    public var carPlaySetting: () -> UNNotificationSetting = unimplemented("carPlaySetting")
+    public var carPlaySetting: UNNotificationSetting { getCarPlaySetting() }
+    private var getCarPlaySetting: () -> UNNotificationSetting = unimplemented("carPlaySetting")
 
     @available(tvOS, unavailable)
-    public var criticalAlertSetting: () -> UNNotificationSetting = unimplemented(
+    public var criticalAlertSetting: UNNotificationSetting { getCriticalAlertSetting() }
+    private var getCriticalAlertSetting: () -> UNNotificationSetting = unimplemented(
       "criticalAlertSetting"
     )
 
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
-    public var lockScreenSetting: () -> UNNotificationSetting = unimplemented("lockScreenSetting")
+    public var lockScreenSetting: UNNotificationSetting { getLockScreenSetting() }
+    private var getLockScreenSetting: () -> UNNotificationSetting = unimplemented("lockScreenSetting")
 
     @available(tvOS, unavailable)
-    public var notificationCenterSetting: () -> UNNotificationSetting = unimplemented(
+    public var notificationCenterSetting: UNNotificationSetting { getNotificationCenterSetting() }
+    private var getNotificationCenterSetting: () -> UNNotificationSetting = unimplemented(
       "notificationCenterSetting"
     )
 
     @available(tvOS, unavailable)
-    public var providesAppNotificationSettings: () -> Bool = unimplemented(
+    public var providesAppNotificationSettings: Bool { getProvidesAppNotificationSettings() }
+    private var getProvidesAppNotificationSettings: () -> Bool = unimplemented(
       "providesAppNotificationSettings"
     )
 
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
-    public var showPreviewsSetting: () -> UNShowPreviewsSetting = unimplemented(
+    public var showPreviewsSetting: UNShowPreviewsSetting { getShowPreviewsSetting() }
+    private var getShowPreviewsSetting: () -> UNShowPreviewsSetting = unimplemented(
       "showPreviewsSetting"
     )
 
     @available(tvOS, unavailable)
-    public var soundSetting: () -> UNNotificationSetting = unimplemented("soundSetting")
+    public var soundSetting: UNNotificationSetting { getSoundSetting() }
+    private var getSoundSetting: () -> UNNotificationSetting = unimplemented("soundSetting")
 
     public init(rawValue: UNNotificationSettings) {
       self.rawValue = { rawValue }
 
       #if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
-      self.alertSetting = { rawValue.alertSetting }
+      self.getAlertSetting = { rawValue.alertSetting }
       #endif
 
       #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
-      self.alertStyle = { rawValue.alertStyle }
+      self.getAlertStyle = { rawValue.alertStyle }
       #endif
 
       #if os(iOS) || os(watchOS) || targetEnvironment(macCatalyst)
-      self.announcementSetting = { rawValue.announcementSetting }
+      self.getAnnouncementSetting = { rawValue.announcementSetting }
       #endif
 
       self.authorizationStatus = { rawValue.authorizationStatus }
 
       #if os(iOS) || os(macOS) || os(tvOS) || targetEnvironment(macCatalyst)
-      self.badgeSetting = { rawValue.badgeSetting }
+      self.getBadgeSetting = { rawValue.badgeSetting }
       #endif
 
       #if os(iOS) || targetEnvironment(macCatalyst)
-      self.carPlaySetting = { rawValue.carPlaySetting }
+      self.getCarPlaySetting = { rawValue.carPlaySetting }
       #endif
 
       #if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
-      self.criticalAlertSetting = { rawValue.criticalAlertSetting }
+      self.getCriticalAlertSetting = { rawValue.criticalAlertSetting }
       #endif
 
       #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
-      self.lockScreenSetting = { rawValue.lockScreenSetting }
+      self.getLockScreenSetting = { rawValue.lockScreenSetting }
       #endif
 
       #if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
-      self.notificationCenterSetting = { rawValue.notificationCenterSetting }
-      self.providesAppNotificationSettings = {  rawValue.providesAppNotificationSettings }
+      self.getNotificationCenterSetting = { rawValue.notificationCenterSetting }
+      self.getProvidesAppNotificationSettings = {  rawValue.providesAppNotificationSettings }
       #endif
 
       #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
-      self.showPreviewsSetting = { rawValue.showPreviewsSetting }
+      self.getShowPreviewsSetting = { rawValue.showPreviewsSetting }
       #endif
 
       #if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
-      self.soundSetting = { rawValue.soundSetting }
+      self.getSoundSetting = { rawValue.soundSetting }
       #endif
     }
 

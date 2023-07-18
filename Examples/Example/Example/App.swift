@@ -79,7 +79,7 @@ struct App: ReducerProtocol {
       }
 
     case let .userNotifications(.didReceiveResponse(response, completion)):
-      let userInfo = response.notification.request.content.userInfo()
+      let userInfo = response.notification.request.content.userInfo
       let notification = UserNotification(userInfo: userInfo)
       if case let .count(value) = notification {
         state.count = value
