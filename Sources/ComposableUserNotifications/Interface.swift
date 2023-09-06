@@ -15,8 +15,8 @@ public struct UserNotificationClient {
   /// See `UNUserNotificationCenterDelegate` for more information.
   public enum DelegateAction {
     case willPresentNotification(
-          _ notification: Notification,
-          completionHandler: (UNNotificationPresentationOptions) -> Void)
+      _ notification: Notification,
+      completionHandler: (UNNotificationPresentationOptions) -> Void)
 
     @available(tvOS, unavailable)
     case didReceiveResponse(_ response: Notification.Response, completionHandler: () -> Void)
@@ -25,33 +25,38 @@ public struct UserNotificationClient {
   }
 
   public var add: @Sendable (UNNotificationRequest) async throws -> Void  =
-    unimplemented("\(Self.self).add")
+  unimplemented("\(Self.self).add")
 
-  @available(tvOS, unavailable)
+#if !os(tvOS)
   public var deliveredNotifications: @Sendable () async -> [Notification] = unimplemented("\(Self.self).deliveredNotifications")
+#endif
 
-  @available(tvOS, unavailable)
+#if !os(tvOS)
   public var notificationCategories: () async -> Set<UNNotificationCategory> = unimplemented("\(Self.self).deliveredNotifications")
+#endif
 
   public var notificationSettings: () async -> Notification.Settings = unimplemented("\(Self.self).notificationSettings")
 
   public var pendingNotificationRequests: () async -> [Notification.Request] = unimplemented("\(Self.self).pendingNotificationRequests")
 
-  @available(tvOS, unavailable)
+#if !os(tvOS)
   public var removeAllDeliveredNotifications: () async -> Void = unimplemented("\(Self.self).removeAllDeliveredNotifications")
+#endif
 
   public var removeAllPendingNotificationRequests: () async -> Void = unimplemented("\(Self.self).removeAllPendingNotificationRequests")
 
-  @available(tvOS, unavailable)
+#if !os(tvOS)
   public var removeDeliveredNotificationsWithIdentifiers: ([String]) async -> Void = unimplemented("\(Self.self).removeDeliveredNotificationsWithIdentifiers")
+#endif
 
   public var removePendingNotificationRequestsWithIdentifiers: ([String]) async -> Void = unimplemented("\(Self.self).removePendingNotificationRequestsWithIdentifiers")
 
   public var requestAuthorization: (UNAuthorizationOptions) async throws -> Bool =
-    unimplemented("\(Self.self).requestAuthorization")
+  unimplemented("\(Self.self).requestAuthorization")
 
-  @available(tvOS, unavailable)
+#if !os(tvOS)
   public var setNotificationCategories: (Set<UNNotificationCategory>) async -> Void = unimplemented("\(Self.self).setNotificationCategories")
+#endif
 
   public var supportsContentExtensions: () -> Bool = unimplemented("\(Self.self).supportsContentExtensions")
 
@@ -66,10 +71,10 @@ extension UserNotificationClient.DelegateAction: Equatable {
     switch (lhs, rhs) {
     case let (.willPresentNotification(lhs, _), .willPresentNotification(rhs, _)):
       return lhs == rhs
-    #if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
     case let (.didReceiveResponse(lhs, _), .didReceiveResponse(rhs, _)):
       return lhs == rhs
-    #endif
+#endif
     case let (.openSettingsForNotification(lhs), .openSettingsForNotification(rhs)):
       return lhs == rhs
     default:

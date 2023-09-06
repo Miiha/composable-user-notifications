@@ -18,31 +18,7 @@ class ExampleTests: XCTestCase {
       await requestedAuthorizationOptions.setValue(options)
       return true
     }
-    let task = await store.send(.didFinishLaunching(notification: nil))
-    await store.receive(.requestAuthorizationResponse(.success(true)))
-    await requestedAuthorizationOptions.withValue {
-      XCTAssertNoDifference($0, [.alert, .badge, .sound])
-    }
-    await task.cancel()
-  }
-
-  func testApplicationLaunchWithtNotification() async throws {
-    let delegate = AsyncStream<UserNotificationClient.DelegateAction>.streamWithContinuation()
-    let requestedAuthorizationOptions = ActorIsolated<UNAuthorizationOptions?>(nil)
-
-    let store = TestStore(
-      initialState: App.State(count: nil),
-      reducer: App()
-    )
-    store.dependencies.userNotifications.delegate = { delegate.stream }
-    store.dependencies.userNotifications.requestAuthorization = { options in
-      await requestedAuthorizationOptions.setValue(options)
-      return true
-    }
-
-    let task = await store.send(.didFinishLaunching(notification: .count(5))) {
-      $0.count = 5
-    }
+    let task = await store.send(.didFinishLaunching)
     await store.receive(.requestAuthorizationResponse(.success(true)))
     await requestedAuthorizationOptions.withValue {
       XCTAssertNoDifference($0, [.alert, .badge, .sound])
@@ -60,7 +36,7 @@ class ExampleTests: XCTestCase {
     store.dependencies.userNotifications.requestAuthorization = { _ in true }
     store.dependencies.userNotifications.delegate = { delegate.stream }
 
-    let task = await store.send(.didFinishLaunching(notification: nil))
+    let task = await store.send(.didFinishLaunching)
     await store.receive(.requestAuthorizationResponse(.success(true)))
 
     var notificationPresentationOptions: UNNotificationPresentationOptions?
@@ -71,7 +47,7 @@ class ExampleTests: XCTestCase {
       date: Date(timeIntervalSince1970: 0),
       request: Notification.Request(
         identifier: "fixture",
-        content: Notification.Content(rawValue: content),
+        content: content,
         trigger: nil
       )
     )
@@ -104,7 +80,7 @@ class ExampleTests: XCTestCase {
     store.dependencies.userNotifications.requestAuthorization = { _ in true }
     store.dependencies.userNotifications.delegate = { delegate.stream }
 
-    let task = await store.send(.didFinishLaunching(notification: nil))
+    let task = await store.send(.didFinishLaunching)
     await store.receive(.requestAuthorizationResponse(.success(true)))
 
     var didReceiveResponseCompletionHandlerCalled = false
@@ -118,7 +94,7 @@ class ExampleTests: XCTestCase {
           date: Date(timeIntervalSince1970: 0),
           request: Notification.Request(
             identifier: "fixture",
-            content: Notification.Content(rawValue: content),
+            content: content,
             trigger: nil
           )
         )
@@ -227,7 +203,7 @@ class ExampleTests: XCTestCase {
       XCTAssertTrue($0?.trigger is UNTimeIntervalNotificationTrigger)
       XCTAssertEqual(
         ($0?.trigger as? UNTimeIntervalNotificationTrigger)?.timeInterval,
-        5
+        2
       )
     }
   }
