@@ -1,4 +1,3 @@
-import CoreLocation
 import UserNotifications
 import XCTestDynamicOverlay
 
