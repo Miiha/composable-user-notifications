@@ -9,44 +9,44 @@ extension UserNotificationClient: DependencyKey {
     var client = UserNotificationClient()
     client.add = { try await UNUserNotificationCenter.current().add($0) }
 
-    #if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
     client.deliveredNotifications = {
       let notifications = await center.deliveredNotifications()
       return notifications.map(Notification.init(rawValue:))
     }
-    #endif
+#endif
 
     client.notificationSettings = {
       let settings = await center.notificationSettings()
       return Notification.Settings(rawValue: settings)
     }
 
-    #if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
     client.notificationCategories = {
       await center.notificationCategories()
     }
-    #endif
+#endif
 
     client.pendingNotificationRequests = {
       let requests = await center.pendingNotificationRequests()
       return requests.map(Notification.Request.init(rawValue:))
     }
 
-    #if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
     client.removeAllDeliveredNotifications = {
       center.removeAllDeliveredNotifications()
     }
-    #endif
+#endif
 
     client.removeAllPendingNotificationRequests = {
       center.removeAllPendingNotificationRequests()
     }
 
-    #if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
     client.removeDeliveredNotificationsWithIdentifiers = {
       center.removeDeliveredNotifications(withIdentifiers: $0)
     }
-    #endif
+#endif
 
     client.removePendingNotificationRequestsWithIdentifiers = {
       center.removePendingNotificationRequests(withIdentifiers: $0)
@@ -56,11 +56,11 @@ extension UserNotificationClient: DependencyKey {
       try await center.requestAuthorization(options: $0)
     }
 
-    #if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
     client.setNotificationCategories = {
       center.setNotificationCategories($0)
     }
-    #endif
+#endif
 
     client.supportsContentExtensions = {
       center.supportsContentExtensions
@@ -75,7 +75,7 @@ extension UserNotificationClient: DependencyKey {
         }
       }
     }
-    
+
     return client
   }
 }
@@ -94,7 +94,7 @@ private extension UserNotificationClient {
       withCompletionHandler completionHandler:
       @escaping (UNNotificationPresentationOptions) -> Void
     ) {
-        self.continuation.yield(
+      self.continuation.yield(
         .willPresentNotification(
           Notification(rawValue: notification),
           completionHandler: completionHandler
@@ -102,7 +102,7 @@ private extension UserNotificationClient {
       )
     }
 
-    #if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
     func userNotificationCenter(
       _ center: UNUserNotificationCenter,
       didReceive response: UNNotificationResponse,
@@ -113,9 +113,9 @@ private extension UserNotificationClient {
         .didReceiveResponse(wrappedResponse) { completionHandler() }
       )
     }
-    #endif
+#endif
 
-    #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
     func userNotificationCenter(
       _ center: UNUserNotificationCenter,
       openSettingsFor notification: UNNotification?
@@ -125,6 +125,6 @@ private extension UserNotificationClient {
         .openSettingsForNotification(mappedNotification)
       )
     }
-    #endif
+#endif
   }
 }

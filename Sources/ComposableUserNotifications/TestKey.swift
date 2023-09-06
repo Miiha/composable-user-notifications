@@ -40,7 +40,6 @@ extension UserNotificationClient: TestDependencyKey {
 #else // tvOS
   public static let testValue = Self(
     add: unimplemented("\(Self.self).add"),
-    deliveredNotifications: unimplemented("\(Self.self).deliveredNotifications"),
     pendingNotificationRequests: unimplemented("\(Self.self).pendingNotificationRequests"),
     removeAllPendingNotificationRequests: unimplemented(
       "\(Self.self).removeAllPendingNotificationRequests"
@@ -75,7 +74,6 @@ extension UserNotificationClient {
 #else // tvOS
   public static let noop = Self(
     add: { _ in },
-    deliveredNotifications: { [] },
     pendingNotificationRequests: { [] },
     removeAllPendingNotificationRequests: { },
     removePendingNotificationRequestsWithIdentifiers: { _ in },
