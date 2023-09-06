@@ -49,7 +49,7 @@ extension Notification {
           return .calendar(Trigger.Calendar(rawValue: trigger))
         case let trigger as UNTimeIntervalNotificationTrigger:
           return .timeInterval(Trigger.TimeInterval(rawValue: trigger))
-#if os(iOS) || os(watchOS)
+#if (os(iOS) || os(watchOS)) && !targetEnvironment(macCatalyst)
         case let trigger as UNLocationNotificationTrigger:
           return .location(Trigger.Location(rawValue: trigger))
 #endif
@@ -83,6 +83,7 @@ extension Notification {
     case timeInterval(TimeInterval)
     case calendar(Calendar)
 
+    @available(macCatalyst, unavailable)
     @available(macOS, unavailable)
     @available(tvOS, unavailable)
     case location(Location)
@@ -95,7 +96,7 @@ extension Notification {
         return lhs == rhs
       case let (.calendar(lhs), .calendar(rhs)):
         return lhs == rhs
-#if os(iOS) || os(watchOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(watchOS)
       case let (.location(lhs), .location(rhs)):
         return lhs == rhs
 #endif
@@ -115,7 +116,7 @@ extension Notification.Trigger {
       return value.repeats
     case let .calendar(value):
       return value.repeats
-#if os(iOS) || os(watchOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(watchOS)
     case let .location(value):
       return value.repeats
 #endif
@@ -205,6 +206,7 @@ extension Notification.Trigger {
   }
 
   @available(macOS, unavailable)
+  @available(macCatalyst, unavailable)
   @available(tvOS, unavailable)
   public struct Location: Equatable {
     public let rawValue: UNLocationNotificationTrigger?
