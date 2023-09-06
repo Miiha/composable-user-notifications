@@ -26,14 +26,6 @@ test-swift:
 	swift test
 	swift test -c release
 
-test-linux:
-	docker run \
-		--rm \
-		-v "$(PWD):$(PWD)" \
-		-w "$(PWD)" \
-		swift:5.7-focal \
-		bash -c 'apt-get update && apt-get -y install make && make test-swift'
-
 build-for-static-stdlib:
 	@swift build -c debug --static-swift-stdlib
 	@swift build -c release --static-swift-stdlib
@@ -69,7 +61,7 @@ format:
 		--recursive \
 		./Package.swift ./Sources ./Tests
 
-.PHONY: test test-swift test-linux build-for-library-evolution format
+.PHONY: test test-swift build-for-library-evolution format
 
 define udid_for
 $(shell xcrun simctl list --json devices available $(1) | jq -r '.devices | to_entries | map(select(.value | add)) | sort_by(.key) | .[] | select(.key | contains("$(2)")) | .value | last.udid')
