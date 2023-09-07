@@ -23,57 +23,70 @@ public struct UserNotificationClient {
     case openSettingsForNotification(_ notification: Notification?)
   }
 
-  public var add: @Sendable (UNNotificationRequest) async throws -> Void  =
-  unimplemented("\(Self.self).add")
+  public var add: @Sendable (UNNotificationRequest) async throws -> Void =
+    unimplemented("\(Self.self).add")
 
-#if !os(tvOS)
-  public var deliveredNotifications: @Sendable () async -> [Notification] = unimplemented("\(Self.self).deliveredNotifications")
-#endif
+  #if !os(tvOS)
+    public var deliveredNotifications: @Sendable () async -> [Notification] = unimplemented(
+      "\(Self.self).deliveredNotifications")
+  #endif
 
-#if !os(tvOS)
-  public var notificationCategories: () async -> Set<UNNotificationCategory> = unimplemented("\(Self.self).deliveredNotifications")
-#endif
+  #if !os(tvOS)
+    public var notificationCategories: () async -> Set<UNNotificationCategory> = unimplemented(
+      "\(Self.self).deliveredNotifications")
+  #endif
 
-  public var notificationSettings: () async -> Notification.Settings = unimplemented("\(Self.self).notificationSettings")
+  public var notificationSettings: () async -> Notification.Settings = unimplemented(
+    "\(Self.self).notificationSettings")
 
-  public var pendingNotificationRequests: () async -> [Notification.Request] = unimplemented("\(Self.self).pendingNotificationRequests")
+  public var pendingNotificationRequests: () async -> [Notification.Request] = unimplemented(
+    "\(Self.self).pendingNotificationRequests")
 
-#if !os(tvOS)
-  public var removeAllDeliveredNotifications: () async -> Void = unimplemented("\(Self.self).removeAllDeliveredNotifications")
-#endif
+  #if !os(tvOS)
+    public var removeAllDeliveredNotifications: () async -> Void = unimplemented(
+      "\(Self.self).removeAllDeliveredNotifications")
+  #endif
 
-  public var removeAllPendingNotificationRequests: () async -> Void = unimplemented("\(Self.self).removeAllPendingNotificationRequests")
+  public var removeAllPendingNotificationRequests: () async -> Void = unimplemented(
+    "\(Self.self).removeAllPendingNotificationRequests")
 
-#if !os(tvOS)
-  public var removeDeliveredNotificationsWithIdentifiers: ([String]) async -> Void = unimplemented("\(Self.self).removeDeliveredNotificationsWithIdentifiers")
-#endif
+  #if !os(tvOS)
+    public var removeDeliveredNotificationsWithIdentifiers: ([String]) async -> Void =
+      unimplemented("\(Self.self).removeDeliveredNotificationsWithIdentifiers")
+  #endif
 
-  public var removePendingNotificationRequestsWithIdentifiers: ([String]) async -> Void = unimplemented("\(Self.self).removePendingNotificationRequestsWithIdentifiers")
+  public var removePendingNotificationRequestsWithIdentifiers: ([String]) async -> Void =
+    unimplemented("\(Self.self).removePendingNotificationRequestsWithIdentifiers")
 
   public var requestAuthorization: (UNAuthorizationOptions) async throws -> Bool =
-  unimplemented("\(Self.self).requestAuthorization")
+    unimplemented("\(Self.self).requestAuthorization")
 
-#if !os(tvOS)
-  public var setNotificationCategories: (Set<UNNotificationCategory>) async -> Void = unimplemented("\(Self.self).setNotificationCategories")
-#endif
+  #if !os(tvOS)
+    public var setNotificationCategories: (Set<UNNotificationCategory>) async -> Void =
+      unimplemented("\(Self.self).setNotificationCategories")
+  #endif
 
-  public var supportsContentExtensions: () -> Bool = unimplemented("\(Self.self).supportsContentExtensions")
+  public var supportsContentExtensions: () -> Bool = unimplemented(
+    "\(Self.self).supportsContentExtensions")
 
   /// This Effect represents calls to the `UNUserNotificationCenterDelegate`.
   /// Handling the completion handlers of the `UNUserNotificationCenterDelegate`s methods
   /// by multiple observers might lead to unexpected behaviour.
-  public var delegate: @Sendable () -> AsyncStream<DelegateAction> = unimplemented("\(Self.self).delegate", placeholder: .finished)
+  public var delegate: @Sendable () -> AsyncStream<DelegateAction> = unimplemented(
+    "\(Self.self).delegate", placeholder: .finished)
 }
 
 extension UserNotificationClient.DelegateAction: Equatable {
-  public static func == (lhs: UserNotificationClient.DelegateAction, rhs: UserNotificationClient.DelegateAction) -> Bool {
+  public static func == (
+    lhs: UserNotificationClient.DelegateAction, rhs: UserNotificationClient.DelegateAction
+  ) -> Bool {
     switch (lhs, rhs) {
     case let (.willPresentNotification(lhs, _), .willPresentNotification(rhs, _)):
       return lhs == rhs
-#if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
-    case let (.didReceiveResponse(lhs, _), .didReceiveResponse(rhs, _)):
-      return lhs == rhs
-#endif
+    #if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
+      case let (.didReceiveResponse(lhs, _), .didReceiveResponse(rhs, _)):
+        return lhs == rhs
+    #endif
     case let (.openSettingsForNotification(lhs), .openSettingsForNotification(rhs)):
       return lhs == rhs
     default:

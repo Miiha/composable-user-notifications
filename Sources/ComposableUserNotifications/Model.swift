@@ -1,5 +1,5 @@
-import UserNotifications
 import CoreLocation
+import UserNotifications
 import XCTestDynamicOverlay
 
 public struct Notification: Equatable {
@@ -49,10 +49,10 @@ extension Notification {
           return .calendar(Trigger.Calendar(rawValue: trigger))
         case let trigger as UNTimeIntervalNotificationTrigger:
           return .timeInterval(Trigger.TimeInterval(rawValue: trigger))
-#if (os(iOS) || os(watchOS)) && !targetEnvironment(macCatalyst)
-        case let trigger as UNLocationNotificationTrigger:
-          return .location(Trigger.Location(rawValue: trigger))
-#endif
+        #if (os(iOS) || os(watchOS)) && !targetEnvironment(macCatalyst)
+          case let trigger as UNLocationNotificationTrigger:
+            return .location(Trigger.Location(rawValue: trigger))
+        #endif
         default:
           return nil
         }
@@ -96,10 +96,10 @@ extension Notification {
         return lhs == rhs
       case let (.calendar(lhs), .calendar(rhs)):
         return lhs == rhs
-#if os(iOS) || os(watchOS)
-      case let (.location(lhs), .location(rhs)):
-        return lhs == rhs
-#endif
+      #if os(iOS) || os(watchOS)
+        case let (.location(lhs), .location(rhs)):
+          return lhs == rhs
+      #endif
       default:
         return false
       }
@@ -116,10 +116,10 @@ extension Notification.Trigger {
       return value.repeats
     case let .calendar(value):
       return value.repeats
-#if os(iOS) || os(watchOS)
-    case let .location(value):
-      return value.repeats
-#endif
+    #if os(iOS) || os(watchOS)
+      case let .location(value):
+        return value.repeats
+    #endif
     }
   }
 
@@ -308,13 +308,14 @@ extension Notification.Response {
     public init(
       actionIdentifier: String,
       notification: Notification,
-      userText: String) {
-        self.rawValue = nil
+      userText: String
+    ) {
+      self.rawValue = nil
 
-        self.actionIdentifier = actionIdentifier
-        self.notification = notification
-        self.userText = userText
-      }
+      self.actionIdentifier = actionIdentifier
+      self.notification = notification
+      self.userText = userText
+    }
   }
 }
 
@@ -330,21 +331,20 @@ extension Notification {
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
     public var alertStyle: UNAlertStyle {
-#if !os(tvOS) && !os(watchOS)
-      _alertStyle()
-#else
-      fatalError()
-#endif
+      #if !os(tvOS) && !os(watchOS)
+        _alertStyle()
+      #else
+        fatalError()
+      #endif
     }
-#if !os(tvOS) && !os(watchOS)
-    @_spi(Internal)
-    public var _alertStyle: () -> UNAlertStyle = unimplemented("alertStyle")
-#endif
-
+    #if !os(tvOS) && !os(watchOS)
+      @_spi(Internal)
+      public var _alertStyle: () -> UNAlertStyle = unimplemented("alertStyle")
+    #endif
 
     @available(macOS, unavailable)
     @available(tvOS, unavailable)
-    public var announcementSetting: UNNotificationSetting {_announcementSetting() }
+    public var announcementSetting: UNNotificationSetting { _announcementSetting() }
     @_spi(Internal)
     public var _announcementSetting: () -> UNNotificationSetting = unimplemented(
       "announcementSetting"
@@ -396,18 +396,18 @@ extension Notification {
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
     public var showPreviewsSetting: UNShowPreviewsSetting {
-#if !os(tvOS) && !os(watchOS)
-      _showPreviewsSetting()
-#else
-      fatalError()
-#endif
+      #if !os(tvOS) && !os(watchOS)
+        _showPreviewsSetting()
+      #else
+        fatalError()
+      #endif
     }
-#if !os(tvOS) && !os(watchOS)
-    @_spi(Internal)
-    public var _showPreviewsSetting: () -> UNShowPreviewsSetting = unimplemented(
-      "showPreviewsSetting"
-    )
-#endif
+    #if !os(tvOS) && !os(watchOS)
+      @_spi(Internal)
+      public var _showPreviewsSetting: () -> UNShowPreviewsSetting = unimplemented(
+        "showPreviewsSetting"
+      )
+    #endif
 
     @available(tvOS, unavailable)
     public var soundSetting: UNNotificationSetting { _soundSetting() }
@@ -417,50 +417,50 @@ extension Notification {
     public init(rawValue: UNNotificationSettings) {
       self.rawValue = { rawValue }
 
-#if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
-      self._alertSetting = { rawValue.alertSetting }
-#endif
+      #if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
+        self._alertSetting = { rawValue.alertSetting }
+      #endif
 
-#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
-      self._alertStyle = { rawValue.alertStyle }
-#endif
+      #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+        self._alertStyle = { rawValue.alertStyle }
+      #endif
 
-#if os(iOS) || os(watchOS) || targetEnvironment(macCatalyst)
-      self._announcementSetting = { rawValue.announcementSetting }
-#endif
+      #if os(iOS) || os(watchOS) || targetEnvironment(macCatalyst)
+        self._announcementSetting = { rawValue.announcementSetting }
+      #endif
 
       self.authorizationStatus = { rawValue.authorizationStatus }
 
-#if os(iOS) || os(macOS) || os(tvOS) || targetEnvironment(macCatalyst)
-      self._badgeSetting = { rawValue.badgeSetting }
-#endif
+      #if os(iOS) || os(macOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        self._badgeSetting = { rawValue.badgeSetting }
+      #endif
 
-#if os(iOS) || targetEnvironment(macCatalyst)
-      self._carPlaySetting = { rawValue.carPlaySetting }
-#endif
+      #if os(iOS) || targetEnvironment(macCatalyst)
+        self._carPlaySetting = { rawValue.carPlaySetting }
+      #endif
 
-#if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
-      self._criticalAlertSetting = { rawValue.criticalAlertSetting }
-#endif
+      #if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
+        self._criticalAlertSetting = { rawValue.criticalAlertSetting }
+      #endif
 
-#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
-      self._lockScreenSetting = { rawValue.lockScreenSetting }
-#endif
+      #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+        self._lockScreenSetting = { rawValue.lockScreenSetting }
+      #endif
 
-#if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
-      self._notificationCenterSetting = { rawValue.notificationCenterSetting }
-      self._providesAppNotificationSettings = {
-        rawValue.providesAppNotificationSettings
-      }
-#endif
+      #if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
+        self._notificationCenterSetting = { rawValue.notificationCenterSetting }
+        self._providesAppNotificationSettings = {
+          rawValue.providesAppNotificationSettings
+        }
+      #endif
 
-#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
-      self._showPreviewsSetting = { rawValue.showPreviewsSetting }
-#endif
+      #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+        self._showPreviewsSetting = { rawValue.showPreviewsSetting }
+      #endif
 
-#if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
-      self._soundSetting = { rawValue.soundSetting }
-#endif
+      #if os(iOS) || os(macOS) || os(watchOS) || targetEnvironment(macCatalyst)
+        self._soundSetting = { rawValue.soundSetting }
+      #endif
     }
 
     public static func == (
@@ -499,8 +499,8 @@ public struct Region: Hashable {
 
   public static func == (lhs: Self, rhs: Self) -> Bool {
     lhs.identifier == rhs.identifier
-    && lhs.notifyOnEntry == rhs.notifyOnEntry
-    && lhs.notifyOnExit == rhs.notifyOnExit
+      && lhs.notifyOnEntry == rhs.notifyOnEntry
+      && lhs.notifyOnExit == rhs.notifyOnExit
   }
 
   public func hash(into hasher: inout Hasher) {
