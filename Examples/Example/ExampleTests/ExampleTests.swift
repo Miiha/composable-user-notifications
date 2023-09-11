@@ -7,11 +7,11 @@ import XCTest
 @MainActor
 class ExampleTests: XCTestCase {
   func testApplicationLaunchWithoutNotification() async throws {
-    let delegate = AsyncStream<UserNotificationClient.DelegateAction>.streamWithContinuation()
+    let delegate = AsyncStream<UserNotificationClient.DelegateAction>.makeStream()
     let requestedAuthorizationOptions = ActorIsolated<UNAuthorizationOptions?>(nil)
     let store = TestStore(
       initialState: App.State(count: nil),
-      reducer: App()
+      reducer: { App() }
     )
     store.dependencies.userNotifications.delegate = { delegate.stream }
     store.dependencies.userNotifications.requestAuthorization = { options in
@@ -27,11 +27,11 @@ class ExampleTests: XCTestCase {
   }
 
   func testNotificationPresentationHandling() async throws {
-    let delegate = AsyncStream<UserNotificationClient.DelegateAction>.streamWithContinuation()
+    let delegate = AsyncStream<UserNotificationClient.DelegateAction>.makeStream()
 
     let store = TestStore(
       initialState: App.State(count: nil),
-      reducer: App()
+      reducer: { App() }
     )
     store.dependencies.userNotifications.requestAuthorization = { _ in true }
     store.dependencies.userNotifications.delegate = { delegate.stream }
@@ -71,11 +71,11 @@ class ExampleTests: XCTestCase {
   }
 
   func testReceivedNotification() async throws {
-    let delegate = AsyncStream<UserNotificationClient.DelegateAction>.streamWithContinuation()
+    let delegate = AsyncStream<UserNotificationClient.DelegateAction>.makeStream()
 
     let store = TestStore(
       initialState: App.State(count: nil),
-      reducer: App()
+      reducer: { App() }
     )
     store.dependencies.userNotifications.requestAuthorization = { _ in true }
     store.dependencies.userNotifications.delegate = { delegate.stream }
@@ -121,7 +121,7 @@ class ExampleTests: XCTestCase {
   func testReceiveBackgroundNotification() async throws {
     let store = TestStore(
       initialState: App.State(count: nil),
-      reducer: App()
+      reducer: { App() }
     )
     store.dependencies.remote.fetchRemoteCount = { 5 }
 
@@ -142,7 +142,7 @@ class ExampleTests: XCTestCase {
   func testReceiveBackgroundNotificationFailure() async throws {
     let store = TestStore(
       initialState: App.State(count: nil),
-      reducer: App()
+      reducer: { App() }
     )
     struct Error: Swift.Error, Equatable {}
     store.dependencies.remote.fetchRemoteCount = { throw Error() }
@@ -162,7 +162,7 @@ class ExampleTests: XCTestCase {
   func testReceiveBackgroundNotificationWithoutContent() async throws {
     let store = TestStore(
       initialState: App.State(count: nil),
-      reducer: App()
+      reducer: { App() }
     )
 
     var backgroundFetchResult: UIBackgroundFetchResult?
@@ -179,7 +179,7 @@ class ExampleTests: XCTestCase {
   func testTappedScheduleButton() async throws {
     let store = TestStore(
       initialState: App.State(count: nil),
-      reducer: App()
+      reducer: { App() }
     )
 
     let notificationRequest = ActorIsolated<UNNotificationRequest?>(nil)

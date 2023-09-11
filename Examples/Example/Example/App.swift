@@ -3,7 +3,7 @@ import ComposableArchitecture
 import ComposableUserNotifications
 import UIKit
 
-struct App: ReducerProtocol {
+struct App: Reducer {
   struct State: Equatable {
     var count: Int?
   }
@@ -21,7 +21,7 @@ struct App: ReducerProtocol {
   @Dependency(\.remote) var remote
   @Dependency(\.userNotifications) var userNotifications
 
-  func reduce(into state: inout State, action: Action) -> EffectTask<Action> {
+  func reduce(into state: inout State, action: Action) -> Effect<Action> {
     switch action {
     case .didFinishLaunching:
       // Ensure that the delegate is created within `didFinishLaunchingWithOptions` to
@@ -50,19 +50,19 @@ struct App: ReducerProtocol {
     case let .didReceiveBackgroundNotification(backgroundNotification):
       let fetchCompletionHandler = backgroundNotification.fetchCompletionHandler
       guard backgroundNotification.content == .countAvailable else {
-        return .fireAndForget {
+        return .run { _ in
           backgroundNotification.fetchCompletionHandler(.noData)
         }
       }
 
-      return .task {
+      return .run { send in
         do {
           let count = try await self.remote.fetchRemoteCount()
           fetchCompletionHandler(.newData)
-          return .remoteCountResponse(.success(count))
+          await send(.remoteCountResponse(.success(count)))
         } catch {
           fetchCompletionHandler(.failed)
-          return .remoteCountResponse(.failure(error))
+          await send(.remoteCountResponse(.failure(error)))
         }
       }
 
@@ -74,7 +74,7 @@ struct App: ReducerProtocol {
       return .none
 
     case let .userNotifications(.willPresentNotification(_, completion)):
-      return .fireAndForget {
+      return .run { _ in
         completion([.list, .banner, .sound])
       }
 
@@ -85,7 +85,9 @@ struct App: ReducerProtocol {
         state.count = value
       }
 
-      return .fireAndForget(completion)
+      return .run { _ in
+        completion()
+      }
 
     case .userNotifications(.openSettingsForNotification):
       return .none
@@ -108,13 +110,15 @@ struct App: ReducerProtocol {
         trigger: UNTimeIntervalNotificationTrigger(timeInterval: 2, repeats: false)
       )
 
-      return .task {
+      return .run { send in
         await self.userNotifications
           .removePendingNotificationRequestsWithIdentifiers(["example_notification"])
-        return await .addNotificationResponse(
-          TaskResult {
-            Unit(try await self.userNotifications.add(request))
-          }
+        await send(
+          await .addNotificationResponse(
+            TaskResult {
+              Unit(try await self.userNotifications.add(request))
+            }
+          )
         )
       }
     }

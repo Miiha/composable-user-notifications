@@ -4,7 +4,8 @@ import UIKit
 
 private let store = Store(
   initialState: App.State(),
-  reducer: App().transformDependency(\.self) {
+  reducer: { App() },
+  withDependencies: {
     $0.remote = .liveValue
     $0.userNotifications = .liveValue
   }
@@ -33,7 +34,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
 
-    ViewStore(store).send(.didFinishLaunching)
+    store.send(.didFinishLaunching)
     return true
   }
 
@@ -46,7 +47,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       content: BackgroundNotification.Content(userInfo: userInfo),
       fetchCompletionHandler: completionHandler
     )
-    ViewStore(store).send(.didReceiveBackgroundNotification(notification))
+    store.send(.didReceiveBackgroundNotification(notification))
   }
 }
 
