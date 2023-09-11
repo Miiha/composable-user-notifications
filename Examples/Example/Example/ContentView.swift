@@ -6,7 +6,7 @@ struct ContentView: View {
   let store: StoreOf<App>
 
   var body: some View {
-    WithViewStore(self.store) { viewStore in
+    WithViewStore(self.store, observe: { $0 }) { viewStore in
       VStack {
         Text("Count: \(viewStore.count ?? 0)")
           .padding()
@@ -23,8 +23,8 @@ struct ContentView_Previews: PreviewProvider {
   static var previews: some View {
     ContentView(
       store: Store(
-        initialState: .init(),
-        reducer: App()
+        initialState: App.State(),
+        reducer: { App() }
       )
     )
   }

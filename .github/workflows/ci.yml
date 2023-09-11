@@ -30,3 +30,5 @@ jobs:
         run: CONFIG=${{ matrix.config }} make build-all-platforms
       - name: Build for library evolution
         run: make build-for-library-evolution
+      - name: Test Example App
+        run: make test-example
