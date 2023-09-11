@@ -22,13 +22,6 @@ build-all-platforms:
 			-destination platform="$$platform" || exit 1; \
 	done;
 
-format:
-	swift format \
-		--ignore-unparsable-files \
-		--in-place \
-		--recursive \
-		./Package.swift ./Sources ./Tests
-
 build-for-library-evolution:
 	swift build \
 		-c release \
@@ -36,11 +29,24 @@ build-for-library-evolution:
 		-Xswiftc -emit-module-interface \
 		-Xswiftc -enable-library-evolution
 
+format:
+	swift format \
+		--ignore-unparsable-files \
+		--in-place \
+		--recursive \
+		./Package.swift ./Sources ./Tests
+
+test-example:
+	xcrun xcodebuild test \
+		-workspace ComposableUserNotifications.xcworkspace \
+		-scheme Example \
+		-destination platform="${PLATFORM_IOS}" || exit 1; \
+
 test-swift:
 	swift test
 	swift test -c release
 
-.PHONY: test-swift build-for-library-evolution format
+.PHONY: test-example test-swift build-for-library-evolution format
 
 define udid_for
 $(shell xcrun simctl list --json devices available $(1) | jq -r '.devices | to_entries | map(select(.value | add)) | sort_by(.key) | .[] | select(.key | contains("$(2)")) | .value | last.udid')
