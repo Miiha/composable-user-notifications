@@ -1,5 +1,9 @@
 # Composable User Notifications
 
+[![CI](https://github.com/Miiha/composable-user-notifications/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Miiha/composable-user-notifications/actions?query=workflow%3ACI)
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fpointfreeco%2Fcomposable-user-notifications%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/Miiha/composable-user-notifications)
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fpointfreeco%2Fcomposable-user-notifications%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/Miiha/composable-user-notifications)
+
 Composable User Notifications is library that bridges [the Composable Architecture](https://github.com/pointfreeco/swift-composable-architecture) and [User Notifications](https://developer.apple.com/documentation/usernotifications).
 
 This library is modelling it's dependency using [swift concurrency](https://pointfreeco.github.io/swift-composable-architecture/main/documentation/composablearchitecture/swiftconcurrency) since version 0.3.0.
