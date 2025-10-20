@@ -1,6 +1,6 @@
 import Dependencies
 import Foundation
-import UserNotifications
+@preconcurrency import UserNotifications
 
 extension UserNotificationClient: DependencyKey {
   public static var liveValue: Self {
@@ -70,7 +70,7 @@ extension UserNotificationClient: DependencyKey {
       AsyncStream { continuation in
         let delegate = Delegate(continuation: continuation)
         UNUserNotificationCenter.current().delegate = delegate
-        continuation.onTermination = { _ in
+        continuation.onTermination = { [delegate = UncheckedSendable(delegate)] _ in
           _ = delegate
         }
       }
@@ -81,7 +81,7 @@ extension UserNotificationClient: DependencyKey {
 }
 
 extension UserNotificationClient {
-  fileprivate class Delegate: NSObject, UNUserNotificationCenterDelegate {
+  fileprivate final class Delegate: NSObject, UNUserNotificationCenterDelegate, Sendable {
     let continuation: AsyncStream<UserNotificationClient.DelegateAction>.Continuation
 
     init(continuation: AsyncStream<UserNotificationClient.DelegateAction>.Continuation) {
@@ -97,7 +97,9 @@ extension UserNotificationClient {
       self.continuation.yield(
         .willPresentNotification(
           Notification(rawValue: notification),
-          completionHandler: completionHandler
+          completionHandler: { [handler = UncheckedSendable(completionHandler)] options in
+            handler.value(options)
+          }
         )
       )
     }
@@ -110,7 +112,12 @@ extension UserNotificationClient {
       ) {
         let wrappedResponse = Notification.Response(rawValue: response)
         self.continuation.yield(
-          .didReceiveResponse(wrappedResponse) { completionHandler() }
+          .didReceiveResponse(
+            wrappedResponse,
+            completionHandler: { [handler = UncheckedSendable(completionHandler)] in
+              handler.value()
+            }
+          )
         )
       }
     #endif
