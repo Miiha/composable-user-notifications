@@ -4,7 +4,7 @@ import ConcurrencyExtras
 import XCTestDynamicOverlay
 
 public struct Notification: Equatable, Sendable {
-  public let rawValue: UNNotification?
+  nonisolated(unsafe) public let rawValue: UNNotification?
 
   public var date: Date
   public var request: Request
@@ -30,10 +30,10 @@ public struct Notification: Equatable, Sendable {
 
 extension Notification {
   public struct Request: Equatable, Sendable {
-    public let rawValue: UNNotificationRequest?
+    nonisolated(unsafe) public let rawValue: UNNotificationRequest?
 
     public var identifier: String
-    public var content: UNNotificationContent
+    nonisolated(unsafe) public var content: UNNotificationContent
     public var trigger: Trigger?
 
     public init(rawValue: UNNotificationRequest) {
@@ -125,7 +125,7 @@ extension Notification.Trigger {
   }
 
   public struct Push: Equatable, Sendable {
-    public var rawValue: UNPushNotificationTrigger?
+    nonisolated(unsafe) public var rawValue: UNPushNotificationTrigger?
 
     public var repeats: Bool
 
@@ -143,7 +143,7 @@ extension Notification.Trigger {
   }
 
   public struct TimeInterval: Equatable, Sendable {
-    public let rawValue: UNTimeIntervalNotificationTrigger?
+    nonisolated(unsafe) public let rawValue: UNTimeIntervalNotificationTrigger?
 
     public var repeats: Bool
     public var timeInterval: Foundation.TimeInterval
@@ -177,7 +177,7 @@ extension Notification.Trigger {
   }
 
   public struct Calendar: Equatable, Sendable {
-    public let rawValue: UNCalendarNotificationTrigger?
+    nonisolated(unsafe) public let rawValue: UNCalendarNotificationTrigger?
 
     public var repeats: Bool
     public var dateComponents: DateComponents
@@ -214,7 +214,7 @@ extension Notification.Trigger {
   @available(macCatalyst, unavailable)
   @available(tvOS, unavailable)
   public struct Location: Equatable, Sendable {
-    public let rawValue: UNLocationNotificationTrigger?
+    nonisolated(unsafe) public let rawValue: UNLocationNotificationTrigger?
 
     public var repeats: Bool
     public var region: Region
@@ -276,7 +276,7 @@ extension Notification.Response {
   }
 
   public struct UserAction: Equatable, Sendable {
-    public let rawValue: UNNotificationResponse?
+    nonisolated(unsafe) public let rawValue: UNNotificationResponse?
 
     public var actionIdentifier: String
     public var notification: Notification
@@ -296,7 +296,7 @@ extension Notification.Response {
   }
 
   public struct TextInputAction: Equatable, Sendable {
-    public let rawValue: UNTextInputNotificationResponse?
+    nonisolated(unsafe) public let rawValue: UNTextInputNotificationResponse?
 
     public var actionIdentifier: String
     public var notification: Notification
@@ -479,7 +479,7 @@ extension Notification {
 
 // see https://github.com/pointfreeco/swift-composable-architecture/blob/767e1d9553fcee5a95af10e0352f20fb03b98352/Sources/ComposableCoreLocation/Models/Region.swift#L5
 public struct Region: Hashable, Sendable {
-  public let rawValue: CLRegion?
+  nonisolated(unsafe) public let rawValue: CLRegion?
   public var identifier: String
   public var notifyOnEntry: Bool
   public var notifyOnExit: Bool
