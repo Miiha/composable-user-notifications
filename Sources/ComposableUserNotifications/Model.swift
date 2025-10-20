@@ -1,9 +1,10 @@
-import CoreLocation
-import UserNotifications
+import ConcurrencyExtras
+@preconcurrency import CoreLocation
+@preconcurrency import UserNotifications
 import XCTestDynamicOverlay
 
-public struct Notification: Equatable {
-  public let rawValue: UNNotification?
+public struct Notification: Equatable, Sendable {
+  nonisolated(unsafe) public let rawValue: UNNotification?
 
   public var date: Date
   public var request: Request
@@ -28,11 +29,11 @@ public struct Notification: Equatable {
 }
 
 extension Notification {
-  public struct Request: Equatable {
-    public let rawValue: UNNotificationRequest?
+  public struct Request: Equatable, Sendable {
+    nonisolated(unsafe) public let rawValue: UNNotificationRequest?
 
     public var identifier: String
-    public var content: UNNotificationContent
+    nonisolated(unsafe) public var content: UNNotificationContent
     public var trigger: Trigger?
 
     public init(rawValue: UNNotificationRequest) {
@@ -78,7 +79,7 @@ extension Notification {
 }
 
 extension Notification {
-  public enum Trigger: Equatable {
+  public enum Trigger: Equatable, Sendable {
     case push(Push)
     case timeInterval(TimeInterval)
     case calendar(Calendar)
@@ -123,8 +124,8 @@ extension Notification.Trigger {
     }
   }
 
-  public struct Push: Equatable {
-    public var rawValue: UNPushNotificationTrigger?
+  public struct Push: Equatable, Sendable {
+    nonisolated(unsafe) public var rawValue: UNPushNotificationTrigger?
 
     public var repeats: Bool
 
@@ -141,25 +142,27 @@ extension Notification.Trigger {
     }
   }
 
-  public struct TimeInterval: Equatable {
-    public let rawValue: UNTimeIntervalNotificationTrigger?
+  public struct TimeInterval: Equatable, Sendable {
+    nonisolated(unsafe) public let rawValue: UNTimeIntervalNotificationTrigger?
 
     public var repeats: Bool
     public var timeInterval: Foundation.TimeInterval
-    public var nextTriggerDate: () -> Date?
+    public var nextTriggerDate: @Sendable () -> Date?
 
     init(rawValue: UNTimeIntervalNotificationTrigger) {
       self.rawValue = rawValue
 
       self.repeats = rawValue.repeats
       self.timeInterval = rawValue.timeInterval
-      self.nextTriggerDate = rawValue.nextTriggerDate
+      self.nextTriggerDate = { [nextTriggerDate = UncheckedSendable(rawValue.nextTriggerDate)] in
+        nextTriggerDate.value()
+      }
     }
 
     public init(
       repeats: Bool,
       timeInterval: Foundation.TimeInterval,
-      nextTriggerDate: @escaping () -> Date?
+      nextTriggerDate: @Sendable @escaping () -> Date?
     ) {
       self.rawValue = nil
 
@@ -173,25 +176,27 @@ extension Notification.Trigger {
     }
   }
 
-  public struct Calendar: Equatable {
-    public let rawValue: UNCalendarNotificationTrigger?
+  public struct Calendar: Equatable, Sendable {
+    nonisolated(unsafe) public let rawValue: UNCalendarNotificationTrigger?
 
     public var repeats: Bool
     public var dateComponents: DateComponents
-    public var nextTriggerDate: () -> Date?
+    public var nextTriggerDate: @Sendable () -> Date?
 
     public init(rawValue: UNCalendarNotificationTrigger) {
       self.rawValue = rawValue
 
       self.repeats = rawValue.repeats
       self.dateComponents = rawValue.dateComponents
-      self.nextTriggerDate = rawValue.nextTriggerDate
+      self.nextTriggerDate = { [nextTriggerDate = UncheckedSendable(rawValue.nextTriggerDate)] in
+        nextTriggerDate.value()
+      }
     }
 
     public init(
       repeats: Bool,
       dateComponents: DateComponents,
-      nextTriggerDate: @escaping () -> Date?
+      nextTriggerDate: @Sendable @escaping () -> Date?
     ) {
       self.rawValue = nil
 
@@ -208,8 +213,8 @@ extension Notification.Trigger {
   @available(macOS, unavailable)
   @available(macCatalyst, unavailable)
   @available(tvOS, unavailable)
-  public struct Location: Equatable {
-    public let rawValue: UNLocationNotificationTrigger?
+  public struct Location: Equatable, Sendable {
+    nonisolated(unsafe) public let rawValue: UNLocationNotificationTrigger?
 
     public var repeats: Bool
     public var region: Region
@@ -232,7 +237,7 @@ extension Notification.Trigger {
 
 extension Notification {
   @available(tvOS, unavailable)
-  public enum Response: Equatable {
+  public enum Response: Equatable, Sendable {
     case user(UserAction)
     case textInput(TextInputAction)
   }
@@ -270,8 +275,8 @@ extension Notification.Response {
     }
   }
 
-  public struct UserAction: Equatable {
-    public let rawValue: UNNotificationResponse?
+  public struct UserAction: Equatable, Sendable {
+    nonisolated(unsafe) public let rawValue: UNNotificationResponse?
 
     public var actionIdentifier: String
     public var notification: Notification
@@ -290,8 +295,8 @@ extension Notification.Response {
     }
   }
 
-  public struct TextInputAction: Equatable {
-    public let rawValue: UNTextInputNotificationResponse?
+  public struct TextInputAction: Equatable, Sendable {
+    nonisolated(unsafe) public let rawValue: UNTextInputNotificationResponse?
 
     public var actionIdentifier: String
     public var notification: Notification
@@ -473,8 +478,8 @@ extension Notification {
 }
 
 // see https://github.com/pointfreeco/swift-composable-architecture/blob/767e1d9553fcee5a95af10e0352f20fb03b98352/Sources/ComposableCoreLocation/Models/Region.swift#L5
-public struct Region: Hashable {
-  public let rawValue: CLRegion?
+public struct Region: Hashable, Sendable {
+  nonisolated(unsafe) public let rawValue: CLRegion?
   public var identifier: String
   public var notifyOnEntry: Bool
   public var notifyOnExit: Bool

@@ -1,4 +1,4 @@
-import UserNotifications
+@preconcurrency import UserNotifications
 import XCTestDynamicOverlay
 
 /// A wrapper around UserNotifications's `UNUserNotificationCenter` that exposes its functionality through
@@ -8,17 +8,20 @@ import XCTestDynamicOverlay
 @available(macOS 10.14, *)
 @available(tvOS 10.0, *)
 @available(watchOS 3.0, *)
-public struct UserNotificationClient {
+public struct UserNotificationClient: Sendable {
   /// Actions that correspond to `UNUserNotificationCenterDelegate` methods.
   ///
   /// See `UNUserNotificationCenterDelegate` for more information.
-  public enum DelegateAction {
+    public enum DelegateAction: Sendable {
     case willPresentNotification(
       _ notification: Notification,
-      completionHandler: (UNNotificationPresentationOptions) -> Void)
+      completionHandler: @Sendable (UNNotificationPresentationOptions) -> Void)
 
     @available(tvOS, unavailable)
-    case didReceiveResponse(_ response: Notification.Response, completionHandler: () -> Void)
+      case didReceiveResponse(
+        _ response: Notification.Response,
+        completionHandler: @Sendable () -> Void
+      )
 
     case openSettingsForNotification(_ notification: Notification?)
   }
@@ -32,41 +35,41 @@ public struct UserNotificationClient {
   #endif
 
   #if !os(tvOS)
-    public var notificationCategories: () async -> Set<UNNotificationCategory> = unimplemented(
+    public var notificationCategories: @Sendable () async -> Set<UNNotificationCategory> = unimplemented(
       "\(Self.self).deliveredNotifications")
   #endif
 
-  public var notificationSettings: () async -> Notification.Settings = unimplemented(
+  public var notificationSettings: @Sendable () async -> Notification.Settings = unimplemented(
     "\(Self.self).notificationSettings")
 
-  public var pendingNotificationRequests: () async -> [Notification.Request] = unimplemented(
+  public var pendingNotificationRequests: @Sendable () async -> [Notification.Request] = unimplemented(
     "\(Self.self).pendingNotificationRequests")
 
   #if !os(tvOS)
-    public var removeAllDeliveredNotifications: () async -> Void = unimplemented(
+    public var removeAllDeliveredNotifications: @Sendable () async -> Void = unimplemented(
       "\(Self.self).removeAllDeliveredNotifications")
   #endif
 
-  public var removeAllPendingNotificationRequests: () async -> Void = unimplemented(
+  public var removeAllPendingNotificationRequests: @Sendable () async -> Void = unimplemented(
     "\(Self.self).removeAllPendingNotificationRequests")
 
   #if !os(tvOS)
-    public var removeDeliveredNotificationsWithIdentifiers: ([String]) async -> Void =
+    public var removeDeliveredNotificationsWithIdentifiers: @Sendable ([String]) async -> Void =
       unimplemented("\(Self.self).removeDeliveredNotificationsWithIdentifiers")
   #endif
 
-  public var removePendingNotificationRequestsWithIdentifiers: ([String]) async -> Void =
+  public var removePendingNotificationRequestsWithIdentifiers: @Sendable ([String]) async -> Void =
     unimplemented("\(Self.self).removePendingNotificationRequestsWithIdentifiers")
 
-  public var requestAuthorization: (UNAuthorizationOptions) async throws -> Bool =
+  public var requestAuthorization: @Sendable (UNAuthorizationOptions) async throws -> Bool =
     unimplemented("\(Self.self).requestAuthorization")
 
   #if !os(tvOS)
-    public var setNotificationCategories: (Set<UNNotificationCategory>) async -> Void =
+    public var setNotificationCategories: @Sendable (Set<UNNotificationCategory>) async -> Void =
       unimplemented("\(Self.self).setNotificationCategories")
   #endif
 
-  public var supportsContentExtensions: () -> Bool = unimplemented(
+  public var supportsContentExtensions: @Sendable () -> Bool = unimplemented(
     "\(Self.self).supportsContentExtensions")
 
   /// This Effect represents calls to the `UNUserNotificationCenterDelegate`.

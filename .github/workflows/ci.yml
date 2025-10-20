@@ -15,15 +15,15 @@ concurrency:
 
 jobs:
   macos:
-    name: macOS 13 (Xcode 14.3.1)
-    runs-on: macos-13
+    name: macOS 15 (Xcode 16.4)
+    runs-on: macos-15
     strategy:
       matrix:
         config: ['debug', 'release']
     steps:
       - uses: actions/checkout@v3
-      - name: Select Xcode 14.3.1
-        run: sudo xcode-select -s /Applications/Xcode_14.3.1.app
+      - name: Select Xcode 16.4
+        run: sudo xcode-select -s /Applications/Xcode_16.4.app
       - name: Run tests
         run: make test-swift
       - name: Build platforms ${{ matrix.config }}
